@@ -95,11 +95,7 @@ def collect_calendar(page, region, pyeong, month):
         for item in items:
             text = item.inner_text().strip()
             cls  = item.get_attribute("class") or ""
-            status = (
-                "예약가능" if "disabled" not in cls
-                else "예약불가" if "waiting" in cls
-                else cls
-            )
+            status = "예약가능" if "disabled" in cls else "예약불가"
 
             match = re.match(r"(.+?)\((.+?)\)\s*-\s*(.+)", text)
             if match:
