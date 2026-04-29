@@ -28,7 +28,7 @@ jobs:
   crawl:
     name: 리솜 예약현황 수집
     runs-on: ubuntu-latest
-    timeout-minutes: 30          # 최대 30분 (행업 방지)
+    timeout-minutes: 30
 
     steps:
       # ── 1. 저장소 체크아웃 ──────────────────────────────
@@ -57,7 +57,6 @@ jobs:
 
       # ── 5. 크롤러 실행 ──────────────────────────────────
       - name: 리솜 크롤러 실행
-
         env:
           RESOM_ID:   ${{ secrets.RESOM_ID }}
           RESOM_PW:   ${{ secrets.RESOM_PW }}
@@ -74,3 +73,13 @@ jobs:
         run: |
           echo "=== data/ 폴더 최신 파일 ==="
           ls -lht data/ | head -10 || echo "data/ 폴더가 비어있거나 없음"
+
+      # ── 7. Pages 배포 트리거 ────────────────────────────
+      - name: Pages 배포 트리거
+        if: success()
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/kelixx-stack/resort-availability/dispatches \
+            -d '{"event_type":"rebuild-pages"}'
