@@ -6,10 +6,10 @@ on:
       - 'data/**.xlsx'
       - 'data/**.xls'
       - 'convert_to_html.py'
-  workflow_dispatch:  # 수동 실행 버튼
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -36,28 +36,8 @@ jobs:
       - name: 라이브러리 설치
         run: pip install -r requirements.txt
 
-      - name: 최신 파일 1개만 남기고 나머지 삭제
-        run: |
-          cd data
-          # 수정시간 기준 최신 파일 찾기
-          LATEST=$(ls -t *.xlsx *.xls 2>/dev/null | head -1)
-          echo "최신 파일: $LATEST"
-          # 나머지 파일 삭제
-          for f in *.xlsx *.xls; do
-            if [ "$f" != "$LATEST" ]; then
-              echo "삭제: $f"
-              git rm "$f"
-            fi
-          done
-          cd ..
-          # 변경사항 커밋 (삭제된 파일이 있을 때만)
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --cached --quiet || git commit -m "chore: 이전 데이터 파일 정리 [skip ci]"
-          git push
-
-      - name: HTML 변환 실행
-        run: python convert_to_html.py --folder data --output index.html
+      - name: HTML 변환 실행 (최신 파일 1개만)
+        run: python convert_to_html.py --folder data --output index.html --latest
 
       - name: Pages 아티팩트 업로드
         uses: actions/upload-pages-artifact@v3
