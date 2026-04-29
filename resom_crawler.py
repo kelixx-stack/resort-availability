@@ -3,7 +3,7 @@ import time
 import re
 import requests
 import base64
-from datetime import datetime
+from datetime import datetime, date as date_type
 import zoneinfo
 KST = zoneinfo.ZoneInfo("Asia/Seoul")
 from playwright.sync_api import sync_playwright
@@ -99,10 +99,18 @@ def collect_calendar(page, region, pyeong, month):
 
             match = re.match(r"(.+?)\((.+?)\)\s*-\s*(.+)", text)
             if match:
+                # 요일 계산 (월: 2026.05 → 2026, 5)
+                WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"]
+                try:
+                    y, m = int(month.split(".")[0]), int(month.split(".")[1])
+                    weekday = WEEKDAYS[date_type(y, m, int(date)).weekday()]
+                except Exception:
+                    weekday = ""
                 results.append({
                     "수집일시": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
                     "월":      month,
                     "일":      int(date),
+                    "요일":    weekday,
                     "지역":    region,
                     "평형":    pyeong,
                     "객실타입": match.group(1).strip(),
@@ -159,7 +167,7 @@ def save_and_upload(all_data: list):
         print("⚠️ 예약가능 데이터 없음 - 업로드 생략")
         return
 
-    fields    = ["수집일시", "월", "일", "지역", "평형", "객실타입", "리조트", "상태"]
+    fields    = ["수집일시", "월", "일", "요일", "지역", "평형", "객실타입", "리조트", "상태"]
     timestamp = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
 
     # 엑셀 생성 (임시 파일 /tmp 에 저장)
