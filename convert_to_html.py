@@ -33,7 +33,7 @@ except ImportError:
     print("[오류] openpyxl이 없습니다. 설치: pip install openpyxl")
     sys.exit(1)
 
-REQUIRED_COLS    = ["수집일시", "월", "일", "지역", "평형", "객실타입", "리조트", "상태"]
+REQUIRED_COLS    = ["수집일시", "월", "일", "요일", "지역", "평형", "객실타입", "리조트", "상태"]
 STATUS_AVAILABLE = "예약가능"
 OUTPUT_FILE      = "resort_availability.html"
 
@@ -226,10 +226,18 @@ function onMonth(){
     const r = document.getElementById('s-region').value;
     const s = document.getElementById('s-size').value;
     const t = document.getElementById('s-type').value;
-    const days = uniq(DATA.filter(x=>
+    const filtered2 = DATA.filter(x=>
       x.월===m && (!r||x.지역===r) && (!s||x.평형===s) && (!t||x.객실타입===t)
-    ).map(x=>x.일));
-    populateSelect('s-day', days, '전체 일');
+    );
+    const dayMap = {};
+    filtered2.forEach(x=>{ if(!dayMap[x.일]) dayMap[x.일]=x.요일||''; });
+    const days = uniq(filtered2.map(x=>x.일));
+    const dayDropEl = document.getElementById('s-day');
+    dayDropEl.innerHTML = '<option value="">전체 일</option>' +
+      days.map(v=>`<option value="${v}">${v}일 (${dayMap[v]})</option>`).join('');
+    dayDropEl.disabled = false;
+    apply();
+    return;
     dayEl.disabled = false;
   }
   apply();
@@ -258,7 +266,7 @@ function apply(){
     <span class="rtag ${tagCls[d.지역]||'tag-etc'}">${d.지역}</span>
   </div>
   <div class="card-mid">
-    <div class="ii"><span class="il">날짜</span><span class="iv">${d.월}월 ${d.일}일</span></div>
+    <div class="ii"><span class="il">날짜</span><span class="iv">${d.월}월 ${d.일}일 (${d.요일||''})</span></div>
     <div class="ii"><span class="il">평형</span><span class="iv">${d.평형}</span></div>
     <div class="ii"><span class="il">객실타입</span><span class="iv">${d.객실타입}</span></div>
   </div>
