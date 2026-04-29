@@ -1,0 +1,49 @@
+name: Build & Deploy Resort Availability
+
+on:
+  push:
+    paths:
+      - 'data/**.xlsx'
+      - 'data/**.xls'
+      - 'convert_to_html.py'
+  workflow_dispatch:  # 수동 실행 버튼
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 라이브러리 설치
+        run: pip install -r requirements.txt
+
+      - name: HTML 변환 실행
+        run: python convert_to_html.py --folder data --output index.html
+
+      - name: Pages 아티팩트 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
