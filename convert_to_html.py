@@ -17,7 +17,7 @@ import os
 import json
 import glob
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 try:
     import pandas as pd
@@ -302,7 +302,8 @@ def build_options(series):
 def generate_html(df, output_path):
     data = df.to_dict(orient="records")
     data_json = json.dumps(data, ensure_ascii=False)
-    updated = datetime.now().strftime("%Y-%m-%d %H:%M")
+    KST = timezone(timedelta(hours=9))
+    updated = datetime.now(KST).strftime("%Y-%m-%d %H:%M (KST)")
 
     html = HTML_TEMPLATE
     html = html.replace("__DATA_JSON__", data_json)
