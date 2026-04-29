@@ -6,6 +6,8 @@ on:
       - 'data/**.xlsx'
       - 'data/**.xls'
       - 'convert_to_html.py'
+  repository_dispatch:
+    types: [rebuild-pages]
   workflow_dispatch:
 
 permissions:
