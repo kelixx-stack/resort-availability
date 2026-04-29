@@ -4,6 +4,8 @@ import re
 import requests
 import base64
 from datetime import datetime
+import zoneinfo
+KST = zoneinfo.ZoneInfo("Asia/Seoul")
 from playwright.sync_api import sync_playwright
 import openpyxl
 
@@ -102,7 +104,7 @@ def collect_calendar(page, region, pyeong, month):
             match = re.match(r"(.+?)\((.+?)\)\s*-\s*(.+)", text)
             if match:
                 results.append({
-                    "수집일시": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "수집일시": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
                     "월":      month,
                     "일":      int(date),
                     "지역":    region,
@@ -136,7 +138,7 @@ def upload_to_github(file_path: str, github_filename: str):
         sha = response.json()["sha"]
 
     data = {
-        "message": f"자동 업데이트: {datetime.now().strftime('%Y-%m-%d %H:%M KST')}",
+        "message": f"자동 업데이트: {datetime.now(KST).strftime('%Y-%m-%d %H:%M')}",
         "content": content,
     }
     if sha:
@@ -162,7 +164,7 @@ def save_and_upload(all_data: list):
         return
 
     fields    = ["수집일시", "월", "일", "지역", "평형", "객실타입", "리조트", "상태"]
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(KST).strftime("%Y%m%d_%H%M%S")
 
     # 엑셀 생성 (임시 파일 /tmp 에 저장)
     tmp_path = f"/tmp/resom_{timestamp}.xlsx"
