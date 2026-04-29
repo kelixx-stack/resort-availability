@@ -18,6 +18,8 @@ import json
 import glob
 import argparse
 from datetime import datetime
+import zoneinfo
+KST = zoneinfo.ZoneInfo("Asia/Seoul")
 
 try:
     import pandas as pd
@@ -302,7 +304,7 @@ def build_options(series):
 def generate_html(df, output_path):
     data = df.to_dict(orient="records")
     data_json = json.dumps(data, ensure_ascii=False)
-    updated = datetime.now().strftime("%Y-%m-%d %H:%M")
+    updated = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
 
     html = HTML_TEMPLATE
     html = html.replace("__DATA_JSON__", data_json)
@@ -331,9 +333,9 @@ def main():
             print(f"[오류] {args.folder} 폴더에 데이터 파일이 없습니다.")
             sys.exit(1)
 
-    # --latest: 수정시간 기준 가장 최신 파일 1개만 사용
+    # --latest: 파일명 기준 가장 최신 파일 1개만 사용
     if args.latest:
-        files = [max(files, key=os.path.getmtime)]
+        files = [max(files, key=os.path.basename)]
         print(f"[최신 파일 모드] {os.path.basename(files[0])}")
 
     print(f"대상 파일: {[os.path.basename(f) for f in files]}\n")
