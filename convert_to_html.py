@@ -332,9 +332,13 @@ def main():
             sys.exit(1)
 
     if args.latest:
-        latest = max(files, key=os.path.getmtime)
-        print(f"[최신파일] {os.path.basename(latest)} (수정일: {datetime.fromtimestamp(os.path.getmtime(latest)).strftime('%Y-%m-%d %H:%M')})")
-        print(f"[제외파일] {[os.path.basename(f) for f in files if f != latest]}\n")
+        # 파일명 내림차순 정렬 → 가장 마지막 이름(최신 날짜)을 선택
+        latest = sorted(files, key=lambda f: os.path.basename(f))[-1]
+        excluded = [os.path.basename(f) for f in files if f != latest]
+        print(f"[최신파일] {os.path.basename(latest)}")
+        if excluded:
+            print(f"[제외파일] {excluded}")
+        print()
         files = [latest]
     else:
         print(f"대상 파일: {[os.path.basename(f) for f in files]}\n")
