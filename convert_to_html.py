@@ -314,9 +314,10 @@ def generate_html(df, output_path):
 
 def main():
     parser = argparse.ArgumentParser(description="리조트 예약현황 HTML 변환")
-    parser.add_argument("files", nargs="*", help="입력 파일 (xlsx/csv/txt)")
+    parser.add_argument("files", nargs="*", help="입력 파일 (xlsx/xls)")
     parser.add_argument("--folder", default=".", help="데이터 폴더 경로")
     parser.add_argument("--output", default=OUTPUT_FILE, help="출력 HTML 파일명")
+    parser.add_argument("--latest", action="store_true", help="가장 최근 파일 1개만 사용")
     args = parser.parse_args()
 
     if args.files:
@@ -327,10 +328,17 @@ def main():
         for p in patterns:
             files.extend(glob.glob(os.path.join(args.folder, p)))
         if not files:
-            print(f"[오류] {args.folder} 폴더에 데이터 파일이 없습니다.")
+            print(f"[오류] {args.folder} 폴더에 엑셀 파일이 없습니다.")
             sys.exit(1)
 
-    print(f"대상 파일: {[os.path.basename(f) for f in files]}\n")
+    if args.latest:
+        latest = max(files, key=os.path.getmtime)
+        print(f"[최신파일] {os.path.basename(latest)} (수정일: {datetime.fromtimestamp(os.path.getmtime(latest)).strftime('%Y-%m-%d %H:%M')})")
+        print(f"[제외파일] {[os.path.basename(f) for f in files if f != latest]}\n")
+        files = [latest]
+    else:
+        print(f"대상 파일: {[os.path.basename(f) for f in files]}\n")
+
     df = collect_data(files)
     generate_html(df, args.output)
 
