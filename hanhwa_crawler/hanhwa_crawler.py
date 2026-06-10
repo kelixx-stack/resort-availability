@@ -73,6 +73,23 @@ WEEKDAYS     = ["월", "화", "수", "목", "금", "토", "일"]
 # 1. Selenium 드라이버 생성
 # ================================================================
 
+def get_chrome_major_version():
+    import subprocess
+    import re
+    try:
+        if os.name == 'nt':
+            import winreg
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Google\Chrome\BLBeacon")
+            version, _ = winreg.QueryValueEx(key, "version")
+            return int(version.split('.')[0])
+        else:
+            output = subprocess.check_output(['google-chrome', '--version']).decode('utf-8')
+            version = re.search(r'Chrome\s+(\d+)', output)
+            return int(version.group(1))
+    except Exception as e:
+        print(f"  [정보] 크롬 버전 감지 실패: {e}")
+        return None
+
 def create_driver():
     options = uc.ChromeOptions()
     options.add_argument("--no-sandbox")
@@ -80,8 +97,10 @@ def create_driver():
     options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
     options.add_argument("--headless")  # uc용 headless 활성화
 
+    v_main = get_chrome_major_version()
     driver = uc.Chrome(
-        options=options
+        options=options,
+        version_main=v_main
     )
     driver.set_script_timeout(30)
     driver.execute_cdp_cmd("Network.enable", {})
