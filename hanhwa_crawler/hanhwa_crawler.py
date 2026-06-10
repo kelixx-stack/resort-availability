@@ -18,11 +18,13 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 from dotenv import load_dotenv
 
-import undetected_chromedriver as uc
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
 # D:\휴양소\.env 경로에서 로드
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
@@ -73,34 +75,26 @@ WEEKDAYS     = ["월", "화", "수", "목", "금", "토", "일"]
 # 1. Selenium 드라이버 생성
 # ================================================================
 
-def get_chrome_major_version():
-    import subprocess
-    import re
-    try:
-        if os.name == 'nt':
-            import winreg
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Google\Chrome\BLBeacon")
-            version, _ = winreg.QueryValueEx(key, "version")
-            return int(version.split('.')[0])
-        else:
-            output = subprocess.check_output(['google-chrome', '--version']).decode('utf-8')
-            version = re.search(r'Chrome\s+(\d+)', output)
-            return int(version.group(1))
-    except Exception as e:
-        print(f"  [정보] 크롬 버전 감지 실패: {e}")
-        return None
-
 def create_driver():
-    options = uc.ChromeOptions()
+    options = Options()
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("useAutomationExtension", False)
+    options.add_experimental_option("prefs", {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False,
+    })
     options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
-    options.add_argument("--headless")  # uc용 headless 활성화
+    options.add_argument("--headless=new")  # 백그라운드 실행 활성화
 
-    v_main = get_chrome_major_version()
-    driver = uc.Chrome(
-        options=options,
-        version_main=v_main
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=options
+    )
+    driver.execute_script(
+        "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
     )
     driver.set_script_timeout(30)
     driver.execute_cdp_cmd("Network.enable", {})
