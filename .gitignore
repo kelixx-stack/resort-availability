@@ -1,0 +1,27 @@
+# Environment variable configurations (Credentials)
+.env
+.env.*
+.env.local
+
+# Python compiled files and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor configurations (Optional but helpful)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
