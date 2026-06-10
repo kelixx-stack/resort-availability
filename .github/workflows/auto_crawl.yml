@@ -50,15 +50,19 @@ jobs:
 
       - name: Run Resom Resort Crawler
         run: python resom_crawler/resom_crawler.py
+        continue-on-error: true
 
       - name: Run Sono Resort Crawler
         run: python sono_crawler/sono_crawler.py
+        continue-on-error: true
 
       - name: Run Lotte Resort Crawler
         run: python lotte_crawler/lotte_crawler.py
+        continue-on-error: true
 
       - name: Run Hanhwa Resort Crawler
         run: python hanhwa_crawler/hanhwa_crawler.py
+        continue-on-error: true
 
       - name: Aggregate Data to HTML
         run: |

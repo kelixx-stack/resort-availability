@@ -31,8 +31,14 @@ cd /d D:\휴양소
 python convert_to_html.py
 echo.
 
+echo [정보] 수집 결과 GitHub 업로드 및 배포 시작...
+git add resort_availability.html index.html
+git commit -m "Auto-update resort vacancies from Local PC [skip ci]"
+git push origin main
+echo.
+
 echo =====================================================
 echo  모든 수집 및 HTML 취합 완료!
 echo  최종 결과 파일: D:\휴양소\resort_availability.html
 echo =====================================================
-pause
+if "%1"=="" pause
