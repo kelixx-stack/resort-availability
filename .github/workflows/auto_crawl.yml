@@ -116,6 +116,6 @@ jobs:
       - name: Commit and Push Updated Data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Auto-update resort vacancies [skip ci]"
+          commit_message: "Auto-update resort vacancies"
           branch: main
           file_pattern: 'resom_crawler/data/* sono_crawler/data/* lotte_crawler/data/* hanhwa_crawler/data/* resort_availability.html index.html'
