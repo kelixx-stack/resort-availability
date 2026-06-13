@@ -664,7 +664,7 @@ body.dark-mode .rate-dropdown-content {
   background-color: var(--chip-hover-bg);
   color: var(--accent-text);
 }
-.rate-dropdown:hover .rate-dropdown-content {
+.rate-dropdown.active .rate-dropdown-content {
   display: block;
 }
 .yoil-chip.active{
@@ -1024,8 +1024,8 @@ body.dark-mode .top-btn{
         <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="일">일</button>
       </div>
     </div>
-    <div class="rate-dropdown">
-      <button class="rate-dropdown-btn">📁 객실 요금표 ▾</button>
+    <div class="rate-dropdown" id="rateDropdown">
+      <button class="rate-dropdown-btn" onclick="toggleRateDropdown(event)">📁 객실 요금표 ▾</button>
       <div class="rate-dropdown-content">
         <a href="요금표/리솜/2026년+객실이용요금표(+레스트리+키즈룸).pdf" target="_blank">리솜 객실 요금표</a>
         <a href="요금표/한화/2026년_회원요금표.xlsx" download>한화 객실 요금표</a>
@@ -1375,6 +1375,14 @@ function toggleInfoBubble(event) {
   trigger.classList.toggle('active', isShow);
 }
 
+function toggleRateDropdown(event) {
+  if (event) event.stopPropagation();
+  const dropdown = document.getElementById('rateDropdown');
+  if (dropdown) {
+    dropdown.classList.toggle('active');
+  }
+}
+
 document.addEventListener('click', (e) => {
   const bubble = document.getElementById('infoBubble');
   const trigger = document.querySelector('.info-trigger');
@@ -1382,6 +1390,13 @@ document.addEventListener('click', (e) => {
     if (!bubble.contains(e.target) && !trigger.contains(e.target)) {
       bubble.classList.remove('show');
       trigger.classList.remove('active');
+    }
+  }
+  
+  const dropdown = document.getElementById('rateDropdown');
+  if (dropdown && dropdown.classList.contains('active')) {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('active');
     }
   }
 });
