@@ -113,9 +113,13 @@ jobs:
           python convert_to_html.py
           cp resort_availability.html index.html
 
+      - name: Generate RAG Optimized Text
+        run: |
+          python generate_rag_text.py
+
       - name: Commit and Push Updated Data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Auto-update resort vacancies"
+          commit_message: "Auto-update resort vacancies and RAG text"
           branch: main
-          file_pattern: 'resom_crawler/data/* sono_crawler/data/* lotte_crawler/data/* hanhwa_crawler/data/* resort_availability.html index.html'
+          file_pattern: 'resom_crawler/data/* sono_crawler/data/* lotte_crawler/data/* hanhwa_crawler/data/* resort_availability.html index.html rag_output/*'

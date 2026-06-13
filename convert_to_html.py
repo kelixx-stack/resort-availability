@@ -276,6 +276,40 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
+  /* Default Light Mode */
+  --bg: #f4f6f5;
+  --card: #ffffff;
+  --card-hover: #f9fafb;
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --header-bg: #0A6E4F;
+  --header-border: rgba(255, 255, 255, 0.15);
+  --header-text: #ffffff;
+  --header-text-muted: rgba(255, 255, 255, 0.85);
+  --filter-bg: rgba(255, 255, 255, 0.85);
+  --select-bg: #ffffff;
+  --select-option-bg: #ffffff;
+  --select-option-color: #1f2937;
+  --chip-bg: #ffffff;
+  --chip-hover-bg: #f3f4f6;
+  --accent-text: #059669;
+  
+  --리솜: #059669;
+  --한화: #ea580c;
+  --소노: #2563eb;
+  --롯데: #dc2626;
+
+  --bubble-bg: #ffffff;
+  --bubble-border: #cbd5e1;
+  --bubble-text: #4b5563;
+  --bubble-title: #111827;
+  --bubble-strong: #059669;
+  --top-btn-bg: #0A6E4F;
+}
+body.dark-mode{
+  /* Dark Mode Override */
   --bg: #090b11;
   --card: rgba(20, 24, 38, 0.6);
   --card-hover: rgba(28, 33, 53, 0.85);
@@ -284,27 +318,48 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   --text: #f3f4f6;
   --text-muted: #9ca3af;
   --header-bg: rgba(9, 11, 17, 0.8);
+  --header-border: rgba(255, 255, 255, 0.07);
+  --header-text: #ffffff;
+  --header-text-muted: #9ca3af;
+  --filter-bg: rgba(15, 18, 28, 0.4);
+  --select-bg: rgba(255, 255, 255, 0.05);
+  --select-option-bg: #111827;
+  --select-option-color: #f3f4f6;
+  --chip-bg: rgba(255, 255, 255, 0.04);
+  --chip-hover-bg: rgba(255, 255, 255, 0.08);
+  --accent-text: #a5b4fc;
+  
   --리솜: #10b981;
   --한화: #f97316;
   --소노: #3b82f6;
   --롯데: #f43f5e;
+
+  --bubble-bg: rgba(15, 23, 42, 0.98);
+  --bubble-border: rgba(255, 255, 255, 0.12);
+  --bubble-text: #9ca3af;
+  --bubble-title: #ffffff;
+  --bubble-strong: #a5b4fc;
+  --top-btn-bg: rgba(30, 41, 59, 0.85);
 }
 body{
   background: var(--bg);
-  background-image: radial-gradient(circle at 10% 20%, rgba(90, 120, 250, 0.05) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(250, 90, 120, 0.03) 0%, transparent 40%);
   color: var(--text);
   font-family: Pretendard, -apple-system, sans-serif;
   font-size: 14px;
   padding-bottom: 80px;
   min-height: 100vh;
   letter-spacing: -0.3px;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark-mode{
+  background-image: radial-gradient(circle at 10% 20%, rgba(90, 120, 250, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(250, 90, 120, 0.03) 0%, transparent 40%);
 }
 header{
   background: var(--header-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--header-border);
   padding: 16px;
   position: sticky;
   top: 0;
@@ -312,17 +367,21 @@ header{
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background 0.3s, border-color 0.3s;
 }
 header h1{
   font-size: 18px;
   font-weight: 800;
+  color: var(--header-text);
+}
+body.dark-mode header h1{
   background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 header p{
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--header-text-muted);
   font-weight: 500;
 }
 .update-info-wrapper {
@@ -336,14 +395,14 @@ header p{
   display: inline-block;
   height: 20px;
 }
-.info-trigger {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
+.info-trigger, .theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--header-border);
+  color: rgba(255, 255, 255, 0.9);
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -351,8 +410,19 @@ header p{
   padding: 0;
   outline: none;
   text-decoration: none;
+  font-size: 11px;
 }
-.info-trigger:hover, .info-trigger.active {
+.info-trigger:hover, .info-trigger.active, .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+}
+body.dark-mode .info-trigger, body.dark-mode .theme-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+body.dark-mode .info-trigger:hover, body.dark-mode .info-trigger.active, body.dark-mode .theme-toggle:hover {
   background: rgba(165, 180, 252, 0.15);
   border-color: rgba(165, 180, 252, 0.4);
   color: #a5b4fc;
@@ -362,16 +432,19 @@ header p{
   top: 30px;
   right: -10px;
   width: 280px;
-  background: rgba(15, 23, 42, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bubble-bg);
+  border: 1px solid var(--bubble-border);
   border-radius: 8px;
   padding: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 200;
   display: none;
   text-align: left;
+}
+body.dark-mode .info-bubble {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
 }
 .info-bubble.show {
   display: block;
@@ -387,24 +460,29 @@ header p{
   right: 15px;
   width: 10px;
   height: 10px;
-  background: rgba(15, 23, 42, 0.98);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bubble-bg);
+  border-top: 1px solid var(--bubble-border);
+  border-left: 1px solid var(--bubble-border);
   transform: rotate(45deg);
 }
 .info-bubble-title {
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: var(--bubble-title);
   margin-bottom: 6px;
+}
+.info-bubble-divider {
+  margin-top: 10px;
+  border-top: 1px solid var(--bubble-border);
+  padding-top: 8px;
 }
 .info-bubble-content {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--bubble-text);
   line-height: 1.5;
 }
 .info-bubble-content strong {
-  color: #a5b4fc;
+  color: var(--bubble-strong);
   font-weight: 600;
   display: block;
   margin-top: 4px;
@@ -430,11 +508,17 @@ header p{
   border-color: var(--border-hover);
   transform: translateY(-2px);
 }
-.dash-card.active-all{ background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); }
-.dash-card.active-리솜{ background: rgba(16, 185, 129, 0.15); border-color: var(--리솜); }
-.dash-card.active-한화{ background: rgba(249, 115, 22, 0.15); border-color: var(--한화); }
-.dash-card.active-소노{ background: rgba(59, 130, 246, 0.15); border-color: var(--소노); }
-.dash-card.active-롯데{ background: rgba(244, 63, 94, 0.15); border-color: var(--롯데); }
+.dash-card.active-all{ background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.15); }
+.dash-card.active-리솜{ background: rgba(16, 185, 129, 0.08); border-color: var(--리솜); }
+.dash-card.active-한화{ background: rgba(249, 115, 22, 0.08); border-color: var(--한화); }
+.dash-card.active-소노{ background: rgba(59, 130, 246, 0.08); border-color: var(--소노); }
+.dash-card.active-롯데{ background: rgba(244, 63, 94, 0.08); border-color: var(--롯데); }
+
+body.dark-mode .dash-card.active-all{ background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); }
+body.dark-mode .dash-card.active-리솜{ background: rgba(16, 185, 129, 0.15); border-color: var(--리솜); }
+body.dark-mode .dash-card.active-한화{ background: rgba(249, 115, 22, 0.15); border-color: var(--한화); }
+body.dark-mode .dash-card.active-소노{ background: rgba(59, 130, 246, 0.15); border-color: var(--소노); }
+body.dark-mode .dash-card.active-롯데{ background: rgba(244, 63, 94, 0.15); border-color: var(--롯데); }
 
 .dash-name{ font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
 .dash-val{ font-size: 16px; font-weight: 800; }
@@ -447,7 +531,7 @@ header p{
 
 /* Filter Section */
 .filter-section{
-  background: rgba(15, 18, 28, 0.4);
+  background: var(--filter-bg);
   border-bottom: 1px solid var(--border);
   padding: 12px 16px;
   position: sticky;
@@ -458,6 +542,7 @@ header p{
   display: flex;
   flex-direction: column;
   gap: 8px;
+  transition: background 0.3s, border-color 0.3s;
 }
 .search-wrapper{
   position: relative;
@@ -490,9 +575,17 @@ header p{
 /* Yoil Filter Styles */
 .yoil-filter-container{
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 2px 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.yoil-left-group {
+  display: flex;
   align-items: center;
   gap: 12px;
-  padding: 2px 0;
 }
 .yoil-label{
   font-size: 12px;
@@ -504,7 +597,7 @@ header p{
   gap: 6px;
 }
 .yoil-chip{
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--chip-bg);
   border: 1px solid var(--border);
   color: var(--text-muted);
   padding: 5px 14px;
@@ -516,8 +609,63 @@ header p{
   outline: none;
 }
 .yoil-chip:hover{
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--chip-hover-bg);
   color: var(--text);
+}
+
+/* Rate Dropdown Styles */
+.rate-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.rate-dropdown-btn {
+  background: var(--chip-bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+.rate-dropdown-btn:hover {
+  background: var(--chip-hover-bg);
+  color: var(--text);
+  border-color: var(--border-hover);
+}
+.rate-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: var(--bubble-bg);
+  min-width: 210px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.06);
+  border: 1px solid var(--bubble-border);
+  border-radius: 8px;
+  z-index: 150;
+  overflow: hidden;
+}
+body.dark-mode .rate-dropdown-content {
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+}
+.rate-dropdown-content a {
+  color: var(--text);
+  padding: 8px 12px;
+  text-decoration: none;
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  text-align: left;
+}
+.rate-dropdown-content a:hover {
+  background-color: var(--chip-hover-bg);
+  color: var(--accent-text);
+}
+.rate-dropdown:hover .rate-dropdown-content {
+  display: block;
 }
 .yoil-chip.active{
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
@@ -533,7 +681,7 @@ header p{
 }
 .filter-dropdowns select{
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--select-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 6px 20px 6px 8px;
@@ -556,8 +704,8 @@ header p{
   cursor: not-allowed;
 }
 .filter-dropdowns select option{
-  background-color: #111827;
-  color: #f3f4f6;
+  background-color: var(--select-option-bg);
+  color: var(--select-option-color);
 }
 
 /* Control & Summary Info */
@@ -570,7 +718,7 @@ header p{
   color: var(--text-muted);
 }
 .info-bar strong{
-  color: #a5b4fc;
+  color: var(--accent-text);
   font-weight: 700;
   font-size: 13px;
 }
@@ -584,7 +732,7 @@ header p{
   transition: all 0.2s;
 }
 .reset-btn:hover{
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--chip-hover-bg);
   border-color: var(--border-hover);
 }
 
@@ -616,6 +764,9 @@ header p{
   background: var(--card-hover);
   border-color: var(--border-hover);
   transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+body.dark-mode .card:hover{
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 .card::before{
@@ -639,7 +790,7 @@ header p{
 .resort-name{
   font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
 }
 .brand-tag{
   font-size: 10px;
@@ -670,7 +821,7 @@ header p{
 }
 .info-val{
   font-weight: 600;
-  color: #f3f4f6;
+  color: var(--text);
 }
 .info-val.avail-cnt{
   font-size: 13px;
@@ -705,7 +856,7 @@ header p{
   right: 18px;
   width: 44px;
   height: 44px;
-  background: rgba(30, 41, 59, 0.85);
+  background: var(--top-btn-bg);
   border: 1px solid var(--border);
   backdrop-filter: blur(8px);
   color: #fff;
@@ -715,12 +866,15 @@ header p{
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
   opacity: 0;
   pointer-events: none;
   transition: all .25s ease;
   transform: translateY(8px);
   z-index: 100;
+}
+body.dark-mode .top-btn{
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
 }
 .top-btn.show{
   opacity: 1;
@@ -728,8 +882,9 @@ header p{
   transform: translateY(0);
 }
 .top-btn:hover{
-  background: rgba(30, 41, 59, 1);
+  background: var(--top-btn-bg);
   transform: scale(1.05);
+  opacity: 0.95;
 }
 
 
@@ -794,6 +949,7 @@ header p{
 <header>
   <h1>휴양소 예약가능 현황</h1>
   <div class="update-info-wrapper">
+    <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme(event)" title="다크 모드 전환">🌙</button>
     <a class="info-trigger" href="mailto:kelixx@hanafn.com" title="메일 발송">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -815,11 +971,11 @@ header p{
           평일 기준 2시간 단위로 하루 총 5회 수집됩니다.
           <strong>수집 시간: 월~금 08:00, 10:00, 12:00, 14:00, 16:00</strong>
         </div>
-        <div class="info-bubble-title" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px;">📢 서비스 이용 유의사항</div>
+        <div class="info-bubble-title info-bubble-divider">📢 서비스 이용 유의사항</div>
         <div class="info-bubble-content">
           본 웹페이지는 임직원 편의를 위해 임시 구축된 시스템으로 일시적인 오류가 발생할 수 있습니다. 아울러 대시보드에 잔여 객실이 표시되더라도 리조트별 사내 예약 한도 정책에 따라 실제 예약이 불가할 수 있으니, 예약 진행 전 반드시 사내 담당 직원에게 가능 여부를 확인해 주시기 바랍니다.
         </div>
-        <div class="info-bubble-title" style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px;">📬 기능개선 & 오류제보</div>
+        <div class="info-bubble-title info-bubble-divider">📬 기능개선 & 오류제보</div>
         <div class="info-bubble-content">
           시스템 개선 요청, 오류 신고 및 기타 문의 사항은 좌측 '메일 발송' 기능을 통해 담당자에게 전달해 주시면 감사하겠습니다.
         </div>
@@ -860,11 +1016,24 @@ header p{
 
 <div class="filter-section">
   <div class="yoil-filter-container">
-    <span class="yoil-label">요일 퀵 필터 :</span>
-    <div class="yoil-chips">
-      <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="금">금</button>
-      <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="토">토</button>
-      <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="일">일</button>
+    <div class="yoil-left-group">
+      <span class="yoil-label">요일 퀵 필터 :</span>
+      <div class="yoil-chips">
+        <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="금">금</button>
+        <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="토">토</button>
+        <button class="yoil-chip" onclick="toggleYoil(this)" data-yoil="일">일</button>
+      </div>
+    </div>
+    <div class="rate-dropdown">
+      <button class="rate-dropdown-btn">📁 객실 요금표 ▾</button>
+      <div class="rate-dropdown-content">
+        <a href="요금표/리솜/2026년+객실이용요금표(+레스트리+키즈룸).pdf" target="_blank">리솜 객실 요금표</a>
+        <a href="요금표/한화/2026년_회원요금표.pdf" target="_blank">한화 객실 요금표</a>
+        <a href="요금표/소노/2026년+소노리조트_회원요금표_260716+까지.pdf" target="_blank">소노 객실 요금표 (~26.07.16)</a>
+        <a href="요금표/소노/2026년+소노리조트_회원요금표_260717~270715.pdf" target="_blank">소노 객실 요금표 (26.07.17~)</a>
+        <a href="요금표/롯데/2026년 객실 요금표_속초부여.pdf" target="_blank">롯데 객실 요금표 (속초/부여)</a>
+        <a href="요금표/롯데/2026년 객실 요금표_김해.pdf" target="_blank">롯데 객실 요금표 (김해)</a>
+      </div>
     </div>
   </div>
 
@@ -1217,10 +1386,48 @@ document.addEventListener('click', (e) => {
   }
 });
 
+function toggleTheme(event) {
+  if (event) event.stopPropagation();
+  const body = document.body;
+  const btn = document.getElementById('themeToggleBtn');
+  const isDark = body.classList.toggle('dark-mode');
+  
+  if (isDark) {
+    btn.textContent = '☀️';
+    btn.title = '라이트 모드 전환';
+    localStorage.setItem('theme', 'dark');
+  } else {
+    btn.textContent = '🌙';
+    btn.title = '다크 모드 전환';
+    localStorage.setItem('theme', 'light');
+  }
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  const body = document.body;
+  const btn = document.getElementById('themeToggleBtn');
+  
+  if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+    if (btn) {
+      btn.textContent = '☀️';
+      btn.title = '라이트 모드 전환';
+    }
+  } else {
+    body.classList.remove('dark-mode');
+    if (btn) {
+      btn.textContent = '🌙';
+      btn.title = '다크 모드 전환';
+    }
+  }
+}
+
 // 초기화
 refreshDashboard();
 refreshFilters();
 apply();
+initTheme();
 
 window.addEventListener('scroll',()=>{
   document.getElementById('topBtn').classList.toggle('show',window.scrollY>200);
