@@ -289,6 +289,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   --header-text: #ffffff;
   --header-text-muted: rgba(255, 255, 255, 0.85);
   --filter-bg: rgba(255, 255, 255, 0.85);
+  --filter-border: rgba(0, 0, 0, 0.06);
   --select-bg: #ffffff;
   --select-option-bg: #ffffff;
   --select-option-color: #1f2937;
@@ -322,6 +323,7 @@ body.dark-mode{
   --header-text: #ffffff;
   --header-text-muted: #9ca3af;
   --filter-bg: rgba(15, 18, 28, 0.4);
+  --filter-border: rgba(255, 255, 255, 0.07);
   --select-bg: rgba(255, 255, 255, 0.05);
   --select-option-bg: #111827;
   --select-option-color: #f3f4f6;
@@ -532,7 +534,7 @@ body.dark-mode .dash-card.active-롯데{ background: rgba(244, 63, 94, 0.15); bo
 /* Filter Section */
 .filter-section{
   background: var(--filter-bg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--filter-border);
   padding: 12px 16px;
   position: sticky;
   top: 61px;
