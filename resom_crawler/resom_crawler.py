@@ -3,7 +3,7 @@ import csv
 import time
 import json
 import urllib.parse
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timedelta
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
@@ -133,7 +133,7 @@ def condo_name_map(region, room_type_name):
     return region
 
 def save_results(all_data):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d_%H%M%S")
     # 필터: 예약가능만 포함
     all_data = [row for row in all_data if row["상태"] == "예약가능"]
     fields = ["수집일시", "월", "일", "지역", "평형", "객실타입", "리조트", "상태"]

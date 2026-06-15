@@ -10,7 +10,7 @@
 """
 
 import os, time, json, re
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
@@ -41,7 +41,7 @@ KEEP_DAYS    = 7
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-TIMESTAMP  = datetime.now().strftime("%Y%m%d_%H%M%S")
+TIMESTAMP  = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d_%H%M%S")
 EXCEL_FILE = os.path.join(OUTPUT_DIR, f"lotte_{TIMESTAMP}.xlsx")
 TXT_FILE   = os.path.join(OUTPUT_DIR, f"lotte_{TIMESTAMP}.txt")
 

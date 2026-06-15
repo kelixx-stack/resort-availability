@@ -11,7 +11,7 @@ import json
 import time
 import os
 import glob
-from datetime import datetime, date
+from datetime import datetime, date, timezone, timedelta
 from dateutil.relativedelta import relativedelta
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -63,7 +63,7 @@ KEEP_DAYS    = 7                            # 파일 보관 기간 (일)
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-TIMESTAMP  = datetime.now().strftime("%Y%m%d_%H%M")
+TIMESTAMP  = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d_%H%M%S")
 EXCEL_FILE = os.path.join(OUTPUT_DIR, f"hanwha_{TIMESTAMP}.xlsx")
 TXT_FILE   = os.path.join(OUTPUT_DIR, f"hanwha_{TIMESTAMP}.txt")
 
