@@ -226,7 +226,7 @@ def collect_all(page):
     results = res_obj["results"]
     
     all_data = []
-    collect_dt = datetime.now().strftime("%Y-%m-%d %H:%M")
+    collect_dt = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
     
     for r in results:
         task = r["task"]

@@ -252,7 +252,7 @@ def main():
                         # 예약가능("A" = 예약가능) 한 것만 수집
                         if status_cd == "A":
                             all_data.append({
-                                "수집일시": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                                "수집일시": datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M"),
                                 "브랜드": "소노",
                                 "리조트명": store_nm or "소노",
                                 "지역": "",

@@ -156,7 +156,8 @@ def compute_weekday(row):
 
 def filter_past_dates(df):
     import re
-    today = datetime.now().date()
+    kst = timezone(timedelta(hours=9))
+    today = datetime.now(kst).date()
     valid_indices = []
     for idx, row in df.iterrows():
         try:

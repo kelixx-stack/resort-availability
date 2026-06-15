@@ -360,7 +360,7 @@ def main():
                 for rm in rooms:
                     if rm.get("rsvPsblYn") == "Y" and int(rm.get("remdRmCnt", 0)) > 0:
                         all_data.append({
-                            "수집일시": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                            "수집일시": datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M"),
                             "월": task["monthLabel"],
                             "일": str(int(day)),
                             "지역": task["bizNm"],

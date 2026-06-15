@@ -352,7 +352,7 @@ def fmt_weekday(date_str):
 
 def save_excel(all_data):
     wb = openpyxl.Workbook()
-    collect_dt = datetime.now().strftime("%Y-%m-%d %H:%M")
+    collect_dt = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
 
     ws = wb.active
     ws.title = "전체현황(예약가능)"
