@@ -360,7 +360,6 @@ def main():
     if all_data:
         print("\n[3/4] 파일 저장...")
         save_excel(all_data)
-        save_txt(all_data)
 
         print("\n[4/4] 오래된 파일 정리...")
         cleanup_old_files()

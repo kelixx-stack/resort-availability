@@ -254,7 +254,6 @@ def main():
     if all_data:
         print("\n[3/3] 파일 저장...")
         save_excel(all_data)
-        save_txt(all_data)
         cleanup_old_files()
 
         print(f"\n{'='*55}")

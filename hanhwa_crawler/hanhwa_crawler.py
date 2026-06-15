@@ -461,7 +461,6 @@ if __name__ == "__main__":
 
     print("[3/4] 파일 저장 중...")
     save_excel(all_data)
-    save_txt(all_data)
 
     print("\n[4/4] 오래된 파일 정리 중...")
     cleanup_old_files()
@@ -470,5 +469,4 @@ if __name__ == "__main__":
     print(f"\n{'=' * 55}")
     print(f"  [성공] 완료!  소요시간: {elapsed:.1f}초")
     print(f"  [엑셀] {os.path.basename(EXCEL_FILE)}")
-    print(f"  [텍스트] {os.path.basename(TXT_FILE)}")
     print("=" * 55 + "\n")

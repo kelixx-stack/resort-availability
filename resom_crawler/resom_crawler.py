@@ -138,14 +138,6 @@ def save_results(all_data):
     all_data = [row for row in all_data if row["상태"] == "예약가능"]
     fields = ["수집일시", "월", "일", "지역", "평형", "객실타입", "리조트", "상태"]
 
-    # CSV 저장
-    csv_path = os.path.join(FOLDER, f"resom_{timestamp}.csv")
-    with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(all_data)
-    print(f"[성공] CSV 저장 완료: {csv_path}")
-
     # 엑셀 저장
     xlsx_path = os.path.join(FOLDER, f"resom_{timestamp}.xlsx")
     wb = openpyxl.Workbook()
@@ -156,19 +148,6 @@ def save_results(all_data):
         ws.append([row[f] for f in fields])
     wb.save(xlsx_path)
     print(f"[성공] 엑셀 저장 완료: {xlsx_path}")
-
-    # 텍스트 파일 저장
-    txt_path = os.path.join(FOLDER, f"resom_{timestamp}.txt")
-    with open(txt_path, "w", encoding="utf-8") as f:
-        f.write(f"리솜리조트 객실현황 | 수집일시: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-        f.write("=" * 70 + "\n")
-        current_region = ""
-        for row in all_data:
-            if row["지역"] != current_region:
-                current_region = row["지역"]
-                f.write(f"\n▶ {current_region}\n")
-            f.write(f"  {row['월']} {int(row['일']):2}일 | {row['평형']} | {row['객실타입']}({row['리조트']}) | {row['상태']}\n")
-    print(f"[성공] 텍스트 저장 완료: {txt_path}")
     cleanup_old_files()
 
 def cleanup_old_files():
