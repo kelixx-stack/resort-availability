@@ -53,44 +53,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openvpn openvpn-systemd-resolved
 
-      - name: Fetch and Setup Korea VPN Profile
+      - name: Fetch and Connect to Korea VPN (with automatic fallback)
         run: |
-          python -c "
-          import urllib.request, base64
-          try:
-              req = urllib.request.Request('https://www.vpngate.net/api/iphone/', headers={'User-Agent': 'Mozilla/5.0'})
-              with urllib.request.urlopen(req, timeout=15) as res:
-                  data = res.read().decode('utf-8')
-              lines = data.split('\n')
-              kr = []
-              for line in lines:
-                  if not line.strip() or line.startswith('*') or line.startswith('#'): continue
-                  parts = line.strip().split(',')
-                  if len(parts) >= 15 and parts[6] == 'KR':
-                      kr.append({
-                          'ping': int(parts[3]) if parts[3].isdigit() else 999,
-                          'speed': int(parts[4]) if parts[4].isdigit() else 0,
-                          'config': parts[14]
-                      })
-              kr.sort(key=lambda x: (x['ping'], -x['speed']))
-              if kr:
-                  with open('client.ovpn', 'w') as f:
-                      f.write(base64.b64decode(kr[0]['config']).decode('utf-8'))
-                      f.write('\nscript-security 2\nup /etc/openvpn/update-systemd-resolved\ndown /etc/openvpn/update-systemd-resolved\ndown-pre\n')
-                  print('Success: client.ovpn generated')
-              else:
-                  print('Error: No Korea VPN found')
-                  exit(1)
-          except Exception as e:
-              print('Error:', e)
-              exit(1)
-          "
-
-      - name: Connect to Korea VPN
-        run: |
-          sudo openvpn --config client.ovpn --daemon
-          sleep 12
-          curl -s https://ipinfo.io/json || true
+          python setup_vpn.py
 
       - name: Run Resom Resort Crawler
         run: python resom_crawler/resom_crawler.py
