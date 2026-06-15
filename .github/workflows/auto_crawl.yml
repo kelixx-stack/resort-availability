@@ -83,8 +83,16 @@ jobs:
           python generate_rag_text.py
 
       - name: Commit and Push Updated Data
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Auto-update resort vacancies and RAG text"
-          branch: main
-          file_pattern: 'resom_crawler/data/* sono_crawler/data/* lotte_crawler/data/* hanhwa_crawler/data/* resort_availability.html index.html rag_output/*'
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add resom_crawler/data/* sono_crawler/data/* lotte_crawler/data/* hanhwa_crawler/data/* resort_availability.html index.html rag_output/* || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Auto-update resort vacancies and RAG text"
+            for i in {1..3}; do
+              git pull --rebase origin main && break || sleep 5
+            done
+            git push origin main
+          else
+            echo "No changes to commit"
+          fi
