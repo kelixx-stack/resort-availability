@@ -108,7 +108,15 @@ def do_login(driver):
     wait = WebDriverWait(driver, 20)
 
     print("  → 로그인 페이지 접속...")
-    driver.get(f"{HNR_BASE}/irsweb/resort3/member/login.do")
+    for attempt in range(3):
+        try:
+            driver.get(f"{HNR_BASE}/irsweb/resort3/member/login.do")
+            break
+        except Exception as e:
+            if attempt == 2:
+                raise e
+            print(f"  ⚠ 로그인 페이지 접속 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            time.sleep(3)
     time.sleep(2)
 
     print("  → 1단계: 아이디/비밀번호 입력...")
@@ -136,7 +144,15 @@ def do_login(driver):
         print(f"     ⚠ 2단계 오류: {e}")
 
     print("  → booking 사이트로 이동...")
-    driver.get(f"{BOOKING_BASE}/rst/rrs/0010/serviceM00.mvc?cont_no=")
+    for attempt in range(3):
+        try:
+            driver.get(f"{BOOKING_BASE}/rst/rrs/0010/serviceM00.mvc?cont_no=")
+            break
+        except Exception as e:
+            if attempt == 2:
+                raise e
+            print(f"  ⚠ booking 사이트 접속 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            time.sleep(3)
     time.sleep(5)
     print(f"     → {driver.current_url}")
 

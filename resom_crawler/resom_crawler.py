@@ -203,16 +203,37 @@ def main():
 
         # 1. 로그인
         print("로그인 페이지 접속...")
-        page.goto("https://book.resom.co.kr/login?resort=resom")
-        page.wait_for_load_state("networkidle")
+        for attempt in range(3):
+            try:
+                page.goto("https://book.resom.co.kr/login?resort=resom", timeout=60000, wait_until="domcontentloaded")
+                break
+            except Exception as e:
+                if attempt == 2:
+                    raise e
+                print(f"  [경고] 로그인 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+                page.wait_for_timeout(3000)
+
+        # 아이디 입력 필드가 나타날 때까지 대기
+        page.wait_for_selector("input[placeholder='아이디를 입력해주세요']", timeout=20000)
         page.fill("input[placeholder='아이디를 입력해주세요']", RESOM_ID)
         page.fill("input[placeholder='비밀번호를 입력해주세요']", RESOM_PW)
         page.click("a.btn.login_btn")
         page.wait_for_timeout(3000)
         
         # 2. 예약 페이지로 이동
-        page.goto("https://book.resom.co.kr/roomReservation?resort=resom")
-        page.wait_for_load_state("networkidle")
+        print("예약 페이지 이동...")
+        for attempt in range(3):
+            try:
+                page.goto("https://book.resom.co.kr/roomReservation?resort=resom", timeout=60000, wait_until="domcontentloaded")
+                break
+            except Exception as e:
+                if attempt == 2:
+                    raise e
+                print(f"  [경고] 예약 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+                page.wait_for_timeout(3000)
+
+        # select 태그(회원권 선택 드롭다운)가 나타날 때까지 대기
+        page.wait_for_selector("select", timeout=20000)
         page.wait_for_timeout(2000)
         
         # 3. 회원권 선택 (토큰 및 지점/객실 데이터 수집 유도)

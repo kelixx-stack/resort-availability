@@ -59,8 +59,21 @@ def build_date_range():
 # ─── 로그인 ───────────────────────────────────────────────────
 def login(page):
     print("  로그인 페이지 접속...")
-    page.goto(LOGIN_URL)
-    page.wait_for_load_state("networkidle")
+    for attempt in range(3):
+        try:
+            page.goto(LOGIN_URL, timeout=60000, wait_until="domcontentloaded")
+            break
+        except Exception as e:
+            if attempt == 2:
+                raise e
+            print(f"  [경고] 로그인 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            page.wait_for_timeout(3000)
+
+    # 비밀번호 입력 필드가 나타날 때까지 대기
+    try:
+        page.wait_for_selector("input[type='password']", timeout=20000)
+    except Exception:
+        pass
     page.wait_for_timeout(2000)
 
     # 아이디 입력 시도
@@ -137,8 +150,15 @@ def collect_all(page):
     
     # 롯데리조트 room-list 페이지로 진입하여 쿠키 및 세션 활성화
     print("  [정보] 객실현황 페이지 세션 활성화 중...")
-    page.goto("https://www.lotteresort.com/main/ko/reservation/room-list")
-    page.wait_for_load_state("networkidle")
+    for attempt in range(3):
+        try:
+            page.goto("https://www.lotteresort.com/main/ko/reservation/room-list", timeout=60000, wait_until="domcontentloaded")
+            break
+        except Exception as e:
+            if attempt == 2:
+                raise e
+            print(f"  [경고] 객실현황 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            page.wait_for_timeout(3000)
     page.wait_for_timeout(3000)
     
     # 수집 대상 범위 설정 (이번달부터 3개월)
