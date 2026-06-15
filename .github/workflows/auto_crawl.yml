@@ -32,7 +32,7 @@ jobs:
 
       - name: Install Playwright Browsers and System Dependencies
         run: |
-          npx playwright install --with-deps chromium
+          playwright install --with-deps chromium
 
       - name: Create Secrets Env File
         run: |

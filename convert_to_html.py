@@ -79,7 +79,7 @@ def find_latest(brand, cfg):
             continue
         files = sorted(
             glob.glob(os.path.join(folder, cfg["pattern"])),
-            key=os.path.getmtime, reverse=True
+            reverse=True
         )
         if files:
             print(f"  [{brand}] {os.path.basename(files[0])}")
