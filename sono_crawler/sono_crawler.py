@@ -249,8 +249,8 @@ def main():
                     store_nm = store.get("storeNm", "").strip()
                     for rt in store.get("rmTypeList", []):
                         status_cd = rt.get("rsvStatusCd")
-                        # 예약가능("A" = 예약가능) 한 것만 수집
-                        if status_cd == "A":
+                        # 예약가능("A" = 예약원활, "E" = 마감임박) 한 것만 수집
+                        if status_cd in ["A", "E"]:
                             all_data.append({
                                 "수집일시": datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M"),
                                 "브랜드": "소노",
