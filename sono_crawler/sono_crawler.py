@@ -262,7 +262,15 @@ def main():
                                 "객실타입": rt.get("roomTypeNm", "").strip(),
                                 "예약가능수": str(rt.get("rsvRmCnt", 1)),
                             })
-                            
+            # 중복 제거 (지점별/날짜별/객실타입별로 가장 큰 예약가능수를 가진 것 유지)
+            dedup_map = {}
+            for row in all_data:
+                key = (row["리조트명"], row["년월"], row["일"], row["객실타입"])
+                val = int(row["예약가능수"])
+                if key not in dedup_map or val > int(dedup_map[key]["예약가능수"]):
+                    dedup_map[key] = row
+            all_data = list(dedup_map.values())
+            
             print(f"  [성공] API 수집 완료 (소요시간: {time.time() - t0:.2f}초, 수집 건수: {len(all_data)}건)")
 
         except Exception as e:
