@@ -200,6 +200,94 @@ def normalize(df, brand, cfg):
             for p, rt in zip(pyeong, room_type)
         ]
 
+    # 롯데: 객실타입 명칭 직관적으로 번역 (C->콘도형, H->호텔형, P->펫동반, D->더블, T->트윈, H->온돌 등)
+    if brand == "롯데":
+        def translate_lotte_room(name):
+            name = str(name).strip()
+            table = {
+                "Deluxe Double": "디럭스 더블",
+                "Deluxe Family Twin": "디럭스 패밀리 트윈",
+                "Grand Deluxe Family": "그랜드 디럭스 패밀리",
+                "Junior Family Suite": "주니어 패밀리 스위트",
+                "Superior Suite": "슈페리어 스위트",
+                "Superior Suite With Tempur": "슈페리어 스위트 (템퍼)",
+                "Luxury 45A": "럭셔리 45평 A타입",
+                "Luxury 45B": "럭셔리 45평 B타입",
+                "Suite 33D": "스위트 33평 D타입",
+                "Suite 33T": "스위트 33평 T타입",
+                "Family 23": "패밀리 23평",
+                "LOTTY&LORRY 23": "로티로리 캐릭터 23평",
+                "LOTTY&LORRY 33": "로티로리 캐릭터 33평",
+                "Deluxe 18F": "디럭스 18평 F타입",
+                "Deluxe 18H": "디럭스 18평 H타입",
+                "C 패밀리(D)": "콘도형 패밀리 더블",
+                "C 패밀리(T)": "콘도형 패밀리 트윈",
+                "C 훼미리(D)": "콘도형 패밀리 더블",
+                "C 훼미리(T)": "콘도형 패밀리 트윈",
+                "C럭셔리(T)": "콘도형 럭셔리 트윈",
+                "C스위트(D)": "콘도형 스위트 더블",
+                "C스위트(T)": "콘도형 스위트 트윈",
+                "C훼미리(T)": "콘도형 패밀리 트윈",
+                "C훼미리(D)": "콘도형 패밀리 더블",
+                "C패밀리(T)": "콘도형 패밀리 트윈",
+                "C패밀리(D)": "콘도형 패밀리 더블",
+                "H 디럭스(D)": "호텔형 디럭스 더블",
+                "H 디럭스(F)": "호텔형 디럭스 패밀리",
+                "H 디럭스(T)": "호텔형 디럭스 트윈",
+                "H 스위트(D)": "호텔형 스위트 더블",
+                "H 스위트(M)": "호텔형 스위트 멜로디",
+                "H 스위트(T)": "호텔형 스위트 트윈",
+                "H 패밀리(F)": "호텔형 패밀리 패밀리",
+                "H 훼미리(F)": "호텔형 패밀리 패밀리",
+                "H 훼미리(H)": "호텔형 패밀리 온돌",
+                "H 훼미리(T)": "호텔형 패밀리 트윈",
+                "P 훼미리(A)": "펫동반 패밀리 타입A",
+                "P 패밀리(A)": "펫동반 패밀리 타입A",
+                "18 A- TYPE 온돌": "18평 A타입 온돌",
+                "18 A- TYPE 트윈": "18평 A타입 트윈",
+                "18 C-TYPE 온돌 트윈": "18평 C타입 온돌트윈",
+                "23 A-TYPE 더블+온돌": "23평 A타입 더블+온돌",
+                "23 C-TYPE 온돌 더블+온돌": "23평 C타입 더블+온돌",
+                "23 C-TYPE 온돌 싱글더블": "23평 C타입 싱글더블",
+                "31 A-TYPE 더블+온돌온돌": "31평 A타입 더블+온돌",
+                "31 A-TYPE 트윈+온돌": "31평 A타입 트윈+온돌",
+                "31 A-TYPE 트윈+온돌온돌": "31평 A타입 트윈+온돌",
+                "31 B-TYPE 더블+온돌온돌": "31평 B타입 더블+온돌",
+                "31 B-TYPE 트윈+온돌온돌": "31평 B타입 트윈+온돌",
+                "31 C-TYPE 온돌 더블+온돌온돌": "31평 C타입 더블+온돌",
+                "31 C-TYPE 온돌 트윈+온돌온돌": "31평 C타입 트윈+온돌",
+                "31 C-TYPE 풀 더블+온돌": "31평 C타입 풀빌라 더블+온돌",
+                "31 C-TYPE 키즈 온돌": "31평 C타입 키즈 온돌",
+                "31 C-TYPE 키즈 패밀리": "31평 C타입 키즈 패밀리",
+                "45 B-TYPE 더블+더블온돌": "45평 B타입 더블+더블+온돌",
+                "45 B-TYPE 트윈+더블온돌": "45평 B타입 트윈+더블+온돌",
+            }
+            if name in table:
+                return table[name]
+            
+            norm_name = name.replace(" ", "")
+            if norm_name in table:
+                return table[norm_name]
+                
+            transformed = name
+            if transformed.startswith("C ") or transformed.startswith("C"):
+                transformed = "콘도형 " + transformed[1:].strip()
+            elif transformed.startswith("H ") or transformed.startswith("H"):
+                transformed = "호텔형 " + transformed[1:].strip()
+            elif transformed.startswith("P ") or transformed.startswith("P"):
+                transformed = "펫동반 " + transformed[1:].strip()
+                
+            transformed = transformed.replace("훼미리", "패밀리")
+            transformed = transformed.replace("(D)", " 더블")
+            transformed = transformed.replace("(T)", " 트윈")
+            transformed = transformed.replace("(F)", " 패밀리")
+            transformed = transformed.replace("(H)", " 온돌")
+            transformed = transformed.replace("(A)", " 타입A")
+            transformed = transformed.replace("  ", " ")
+            return transformed.strip()
+            
+        df["객실타입"] = df["객실타입"].apply(translate_lotte_room)
+
     # 누락 컬럼 보충
     for col in UNIFIED:
         if col not in df.columns:
