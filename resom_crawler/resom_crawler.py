@@ -127,7 +127,7 @@ def condo_name_map(region, room_type_name):
     elif "아일랜드" in room_type_name or region == "안면도":
         return "아일랜드 안면도"
     elif "포레스트" in room_type_name or region == "제천":
-        if "레스트리" in room_type_name:
+        if "레스트리" in room_type_name or "타워" in room_type_name:
             return "레스트리 제천"
         return "포레스트 제천"
     return region
