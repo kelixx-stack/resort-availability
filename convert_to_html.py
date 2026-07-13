@@ -915,6 +915,20 @@ body.dark-mode .card:hover{
   border-radius: 20px;
   text-transform: uppercase;
 }
+.region-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(113, 113, 122, 0.1);
+  color: var(--text-muted, #71717a);
+  border: 1.5px solid rgba(113, 113, 122, 0.2);
+}
+body.dark-mode .region-tag {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
 .tag-리솜{ background: rgba(16, 185, 129, 0.12); color: var(--리솜); border: 1.5px solid rgba(16, 185, 129, 0.2); }
 .tag-한화{ background: rgba(249, 115, 22, 0.12); color: var(--한화); border: 1.5px solid rgba(249, 115, 22, 0.2); }
 .tag-소노{ background: rgba(59, 130, 246, 0.12); color: var(--소노); border: 1.5px solid rgba(59, 130, 246, 0.2); }
@@ -1505,6 +1519,7 @@ function loadMore() {
   <div class="card-top">
     <span class="resort-name">${d[RESORT] || '-'}</span>
     <div class="card-top-right">
+      <span class="region-tag">${region}</span>
       <span class="brand-tag tag-${d[BRAND]}">${d[BRAND]}</span>
       <button class="copy-btn" onclick="copyCardInfo(event, this)" 
               data-resort="${d[RESORT] || '-'}"
@@ -1518,10 +1533,6 @@ function loadMore() {
     <div class="info-row">
       <span class="info-label">투숙 날짜</span>
       <span class="info-val">${dateDisplay}${yoilSpan}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">지역 분류</span>
-      <span class="info-val">${region}</span>
     </div>
     <div class="info-row">
       <span class="info-label">객실타입</span>
