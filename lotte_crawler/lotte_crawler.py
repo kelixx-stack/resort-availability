@@ -243,12 +243,7 @@ def collect_all(page):
                     dt_obj = datetime.strptime(task["checkin_str"], "%Y%m%d").date()
                     yoil = WEEKDAYS[dt_obj.weekday()]
                     
-                    room_flg_nm = rm.get("roomFlgNm", "").strip()
                     room_nm = clean_room_name(rm.get("roomNm", "객실"))
-                    
-                    # 객실명에 "호텔", "콘도", "스페셜" 등의 접두어를 붙임
-                    if room_flg_nm and not room_nm.startswith(room_flg_nm):
-                        room_nm = f"{room_flg_nm} {room_nm}"
                         
                     price = rm.get("minRateAmt", "") or rm.get("roomAvgAmt", "")
                     
