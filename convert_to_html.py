@@ -1066,7 +1066,7 @@ body.dark-mode .top-btn{
   <h1>휴양소 예약가능 현황</h1>
   <div class="update-info-wrapper">
     <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme(event)" title="다크 모드 전환">🌙</button>
-    <a class="info-trigger" href="https://forms.gle/your-google-form-url" target="_blank" title="의견 및 오류 접수">
+    <a class="info-trigger" href="https://docs.google.com/forms/d/e/1FAIpQLSfnCnQn_n6pLZFNTPiS-dEqka2_2zO-3a7VcALeqxvmGsORng/viewform" target="_blank" title="의견 및 오류 접수">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
       </svg>
