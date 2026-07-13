@@ -123,13 +123,13 @@ def build_month_ranges():
 
 def condo_name_map(region, room_type_name):
     if "스플라스" in room_type_name or region == "덕산":
-        return "스플라스 덕산"
+        return "덕산 스플라스"
     elif "아일랜드" in room_type_name or region == "안면도":
-        return "아일랜드 안면도"
+        return "안면도 아일랜드"
     elif "포레스트" in room_type_name or region == "제천":
         if "레스트리" in room_type_name or "타워" in room_type_name:
-            return "레스트리 제천"
-        return "포레스트 제천"
+            return "제천 레스트리"
+        return "제천 포레스트"
     return region
 
 def save_results(all_data):

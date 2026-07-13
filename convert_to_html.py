@@ -200,14 +200,21 @@ def normalize(df, brand, cfg):
             for p, rt in zip(pyeong, room_type)
         ]
 
-    # 리솜: 리조트명 분리 (타워 -> 레스트리 제천, 빌라 -> 포레스트 제천)
+    # 리솜: 리조트명 분리 (타워 -> 제천 레스트리, 빌라 -> 제천 포레스트)
     if brand == "리솜":
         df["리조트명"] = [
-            "레스트리 제천" if "타워" in str(rt) and "제천" in str(res)
-            else "포레스트 제천" if ("빌라" in str(rt) or "포레스트" in str(rt)) and "제천" in str(res)
-            else "포레스트 제천" if "제천" in str(res) # 기본값은 포레스트 제천
+            "제천 레스트리" if "타워" in str(rt) and "제천" in str(res)
+            else "제천 포레스트" if ("빌라" in str(rt) or "포레스트" in str(rt)) and "제천" in str(res)
+            else "제천 포레스트" if "제천" in str(res) # 기본값은 제천 포레스트
             else res
             for rt, res in zip(df["객실타입"], df["리조트명"])
+        ]
+        df["리조트명"] = [
+            str(res).replace("레스트리 제천", "제천 레스트리")
+            .replace("포레스트 제천", "제천 포레스트")
+            .replace("스플라스 덕산", "덕산 스플라스")
+            .replace("아일랜드 안면도", "안면도 아일랜드")
+            for res in df["리조트명"]
         ]
 
     # 롯데: 객실타입 명칭 직관적으로 번역 (C->콘도, H->호텔, P->펫동반, D->더블, T->트윈, H->온돌 등 공식 홈명칭 준수)
