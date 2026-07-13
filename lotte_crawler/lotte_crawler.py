@@ -24,8 +24,8 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 LOTTE_ID = os.getenv("LOTTE_ID", "jbhahaha1@naver.com")
 LOTTE_PW = os.getenv("LOTTE_PW", "sjdhkdml2@")
 
-LOGIN_URL   = "https://www.lotteresort.com/main/ko/member/login"
-RESERVE_URL = "https://www.lotteresort.com/main/ko/reservation/view-reservation/list"
+LOGIN_URL   = "https://www.lottehotel.com/global/ko/login/rewards"
+RESERVE_URL = "https://resort.lottehotel.com/main/ko/reservation/accommodation"
 
 # 수집 대상 리조트 (bizCd → 리조트명)
 TARGET_RESORTS = {
@@ -69,75 +69,67 @@ def login(page):
             print(f"  [경고] 로그인 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
             page.wait_for_timeout(3000)
 
-    # 비밀번호 입력 필드가 나타날 때까지 대기
+    # 페이지 렌더링 대기
+    page.wait_for_timeout(6000)
+
+    # 1. 개인정보 이용동의 체크박스 클릭
     try:
-        page.wait_for_selector("input[type='password']", timeout=20000)
-    except Exception:
-        pass
-    page.wait_for_timeout(2000)
-
-    # 아이디 입력 시도
-    id_filled = False
-    for sel in [
-        "input[name='memberId']", "input[id='memberId']",
-        "input[name='userId']", "input[name='loginId']",
-        "input[name='id']", "input[id='id']",
-        "input[placeholder*='아이디']", "input[placeholder*='이메일']",
-        "input[type='email']", "input[type='text']",
-    ]:
-        try:
-            el = page.query_selector(sel)
-            if el and el.is_visible():
-                el.click()
-                el.fill(LOTTE_ID)
-                id_filled = True
-                print(f"  아이디 입력: {sel}")
-                break
-        except Exception:
-            pass
-
-    if not id_filled:
-        print("  [경고] 아이디 필드 자동 인식 실패")
-        raise Exception("Failed to locate ID input field.")
-
-    # 비밀번호 입력
-    try:
-        page.locator("input[type='password']").first.fill(LOTTE_PW)
-        print("  비밀번호 입력 완료")
+        print("  개인정보 이용동의 체크박스 선택...")
+        page.evaluate("document.querySelector('#personal-info-agree-check').click()")
+        page.wait_for_timeout(1000)
     except Exception as e:
-        print(f"  [경고] 비밀번호 입력 오류: {e}")
+        print(f"  [경고] 체크박스 선택 실패: {e}")
 
-    # 로그인 버튼 클릭
-    btn_clicked = False
-    for sel in [
-        "a#doLogin",
-        "button:has-text('로그인')", "input[type='submit']",
-        "button[type='submit']", ".btn-login", ".login-btn",
-        "[class*='login'][class*='btn']", "a:has-text('로그인')",
-        ".btn_login",
-    ]:
-        try:
-            el = page.query_selector(sel)
-            if el and el.is_visible():
-                el.click()
-                btn_clicked = True
-                print(f"  로그인 버튼 클릭: {sel}")
-                break
-        except Exception:
-            pass
+    # 2. 개인정보 동의 '동의하고 통합 서비스 이용하기' 버튼 클릭
+    try:
+        print("  개인정보 이용동의 버튼 클릭...")
+        page.evaluate("""() => {
+            const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('동의하고') || b.textContent.includes('Agree'));
+            if (btn) btn.click();
+        }""")
+        page.wait_for_timeout(2000)
+    except Exception as e:
+        print(f"  [경고] 이용동의 버튼 클릭 실패: {e}")
 
-    if not btn_clicked:
-        page.keyboard.press("Enter")
-        print("  로그인: Enter 키 사용")
+    # 3. 쿠키 동의 '전체 동의' 버튼 클릭
+    try:
+        print("  쿠키 동의 '전체 동의' 버튼 클릭...")
+        page.evaluate("""() => {
+            const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('전체 동의') || b.textContent.includes('Accept All'));
+            if (btn) btn.click();
+        }""")
+        page.wait_for_timeout(2000)
+    except Exception as e:
+        print(f"  [경고] 쿠키 동의 버튼 클릭 실패: {e}")
 
-    page.wait_for_load_state("networkidle")
-    page.wait_for_timeout(3000)
+    # 4. L.POINT 로그인 탭 선택
+    try:
+        print("  L.POINT 로그인 탭 선택...")
+        page.evaluate("""() => {
+            const tab = Array.from(document.querySelectorAll('button, a, span')).find(el => el.textContent === 'L.POINT 로그인');
+            if (tab) tab.click();
+        }""")
+        page.wait_for_timeout(2000)
+    except Exception as e:
+        print(f"  [경고] L.POINT 탭 선택 실패: {e}")
 
-    # SSO 리다이렉트 처리
-    if "sso" in page.url or "login" in page.url:
-        print(f"  SSO 처리 중... ({page.url})")
-        page.wait_for_load_state("networkidle")
-        page.wait_for_timeout(3000)
+    # 5. 계정 정보 입력
+    try:
+        print("  계정 정보 입력...")
+        page.fill("input[name='loginId'] >> visible=true", LOTTE_ID)
+        page.fill("input[name='loginPw'] >> visible=true", LOTTE_PW)
+    except Exception as e:
+        print(f"  [경고] 계정 입력 실패: {e}")
+        raise e
+
+    # 6. 로그인 버튼 클릭
+    try:
+        print("  로그인 버튼 클릭...")
+        page.click("button.btn-cont-64", force=True)
+        page.wait_for_timeout(8000)
+    except Exception as e:
+        print(f"  [경고] 로그인 버튼 클릭 실패: {e}")
+        raise e
 
     print(f"  [성공] 로그인 완료 → {page.url}")
 
@@ -148,45 +140,47 @@ def clean_room_name(name):
 def collect_all(page):
     print("  [정보] 롯데 고속 API 잔여객실 수집기 구동...")
     
-    # 롯데리조트 room-list 페이지로 진입하여 쿠키 및 세션 활성화
-    print("  [정보] 객실현황 페이지 세션 활성화 중...")
+    # 롯데리조트 메인 페이지로 진입하여 리조트 subdomain 세션 및 쿠키 활성화
+    print("  [정보] 리조트 서브도메인 세션 활성화 중...")
     for attempt in range(3):
         try:
-            page.goto("https://www.lotteresort.com/main/ko/reservation/room-list", timeout=60000, wait_until="domcontentloaded")
+            page.goto("https://resort.lottehotel.com/main/ko/index", timeout=60000, wait_until="domcontentloaded")
             break
         except Exception as e:
             if attempt == 2:
                 raise e
-            print(f"  [경고] 객실현황 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            print(f"  [경고] 리조트 메인 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
             page.wait_for_timeout(3000)
-    page.wait_for_timeout(3000)
+    page.wait_for_timeout(5000)
     
-    # 수집 대상 범위 설정 (이번달부터 3개월)
-    today = date.today()
-    months = []
-    for i in range(3):
-        d = today + relativedelta(months=i)
-        months.append({
-            "year": d.strftime("%Y"),
-            "month": d.strftime("%m"),
-            "label": d.strftime("%Y.%m")
-        })
+    # 수집 대상 날짜 범위 설정 (오늘부터 90일)
+    dates = build_date_range()
+    print(f"  [정보] 수집 대상 날짜 범위: {dates[0]} ~ {dates[-1]} (총 {len(dates)}일)")
         
     memberships = ["6124224400", "6124340800"]
     
     tasks = []
     for biz_cd, resort_nm in TARGET_RESORTS.items():
-        for m in months:
+        for d in dates:
+            checkin_str = d.strftime("%Y%m%d")
+            checkout_str = (d + timedelta(days=1)).strftime("%Y%m%d")
+            month_label = d.strftime("%Y.%m")
+            day_str = str(d.day)
+            
             for mem_no in memberships:
                 url = (
-                    f"https://www.lotteresort.com/main/ko/reservation/room-list/roomList.json"
-                    f"?roomType=&checkinDt=&bizCd={biz_cd}&roomFlg=01&year={m['year']}&month={m['month']}&memberNo={mem_no}"
+                    f"https://resort.lottehotel.com/api/main/ko/reservation/roomList"
+                    f"?rsvType=BAR&procType=&bizCd={biz_cd}&checkinDt={checkin_str}&checkoutDt={checkout_str}"
+                    f"&memberNo={mem_no}&exclusiveCd=&rsvNo=&userId=&userNm=&userMobile="
+                    f"&roomType=&roomFlg=&membYearUseDaysType=1&deadLineDay=&packageNo=&petDetailList="
                 )
                 tasks.append({
                     "url": url,
                     "resort_nm": resort_nm,
                     "biz_cd": biz_cd,
-                    "month_label": m["label"],
+                    "month_label": month_label,
+                    "day_str": day_str,
+                    "checkin_str": checkin_str,
                     "member_no": mem_no
                 })
                 
@@ -195,7 +189,7 @@ def collect_all(page):
     js_code = """
     async function fetchAllCalendar(tasks) {
         const results = [];
-        const chunkSize = 5;
+        const chunkSize = 8; // 8개 동시 요청으로 속도 개선
         for (let i = 0; i < tasks.length; i += chunkSize) {
             const chunk = tasks.slice(i, i + chunkSize);
             const promises = chunk.map(task => 
@@ -231,42 +225,45 @@ def collect_all(page):
     for r in results:
         task = r["task"]
         if not r["success"]:
-            print(f"  [오류] API 수집 실패: {task['resort_nm']} ({task['month_label']}) - {r.get('error')}")
+            # API 수집 실패 건은 무시하고 진행
             continue
             
         data = r["data"]
-        rooms = data.get("if_hp_034", {}).get("if_BODY", {}).get("0", [])
+        rooms = data.get("roomList", [])
         
         for rm in rooms:
-            close = rm.get("CLOSE_FLG", "")
-            total = int(rm.get("TOTAL_CNT", 0))
-            used = int(rm.get("USE_CNT", 0))
-            avail_cnt = total - used
+            avail_type = rm.get("availableRsvType", "")
             
-            # 필터: 예약마감 아님 & 남은 객실 수 > 0
-            if close == "N" and avail_cnt > 0:
-                caln_dt = rm.get("CALN_DT", "")
-                if not caln_dt or len(caln_dt) < 8:
-                    continue
+            # 필터: 예약 가능 ('Y')
+            if avail_type == "Y":
+                avail_cnt = int(rm.get("roomCnt", 0))
+                
+                # 남은 객실 수 > 0
+                if avail_cnt > 0:
+                    dt_obj = datetime.strptime(task["checkin_str"], "%Y%m%d").date()
+                    yoil = WEEKDAYS[dt_obj.weekday()]
                     
-                day_str = str(int(caln_dt[6:8]))
-                dt_obj = date(int(caln_dt[0:4]), int(caln_dt[4:6]), int(caln_dt[6:8]))
-                yoil = WEEKDAYS[dt_obj.weekday()]
-                
-                room_nm = clean_room_name(rm.get("ROOM_NM", "객실"))
-                
-                all_data.append({
-                    "수집일시": collect_dt,
-                    "브랜드": "롯데",
-                    "리조트명": task["resort_nm"],
-                    "지역": "",
-                    "년월": task["month_label"],
-                    "일": day_str,
-                    "요일": yoil,
-                    "객실타입": room_nm,
-                    "예약가능수": str(avail_cnt),
-                    "요금": ""
-                })
+                    room_flg_nm = rm.get("roomFlgNm", "").strip()
+                    room_nm = clean_room_name(rm.get("roomNm", "객실"))
+                    
+                    # 객실명에 "호텔", "콘도", "스페셜" 등의 접두어를 붙임
+                    if room_flg_nm and not room_nm.startswith(room_flg_nm):
+                        room_nm = f"{room_flg_nm} {room_nm}"
+                        
+                    price = rm.get("minRateAmt", "") or rm.get("roomAvgAmt", "")
+                    
+                    all_data.append({
+                        "수집일시": collect_dt,
+                        "브랜드": "롯데",
+                        "리조트명": task["resort_nm"],
+                        "지역": "",
+                        "년월": task["month_label"],
+                        "일": task["day_str"],
+                        "요일": yoil,
+                        "객실타입": room_nm,
+                        "예약가능수": str(avail_cnt),
+                        "요금": str(price)
+                    })
                 
     # 중복 제거 (지점별/날짜별/객실타입별)
     seen = set()

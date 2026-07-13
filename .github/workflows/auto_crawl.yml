@@ -86,10 +86,10 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add resom_crawler/data/ || true
-          git add sono_crawler/data/ || true
-          git add lotte_crawler/data/ || true
-          git add hanhwa_crawler/data/ || true
+          git add -A resom_crawler/data/ || true
+          git add -A sono_crawler/data/ || true
+          git add -A lotte_crawler/data/ || true
+          git add -A hanhwa_crawler/data/ || true
           git add resort_availability.html || true
           git add index.html || true
           git add rag_output/ || true
