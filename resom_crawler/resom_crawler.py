@@ -152,15 +152,20 @@ def save_results(all_data):
 
 def cleanup_old_files():
     import glob as gb
+    import re
     now = datetime.now()
     for pattern in [os.path.join(FOLDER, "resom_*.xlsx"),
                     os.path.join(FOLDER, "resom_*.csv"),
                     os.path.join(FOLDER, "resom_*.txt")]:
         for f in gb.glob(pattern):
-            if (now - datetime.fromtimestamp(os.path.getmtime(f))).days >= KEEP_DAYS:
+            filename = os.path.basename(f)
+            match = re.search(r"\d{8}", filename)
+            if match:
                 try:
-                    os.remove(f)
-                    print(f"  [삭제] 오래된 파일 삭제: {os.path.basename(f)}")
+                    file_date = datetime.strptime(match.group(0), "%Y%m%d")
+                    if (now - file_date).days >= KEEP_DAYS:
+                        os.remove(f)
+                        print(f"  [삭제] 오래된 파일 삭제: {filename}")
                 except Exception:
                     pass
 

@@ -426,6 +426,7 @@ def save_txt(all_data):
 
 def cleanup_old_files():
     """KEEP_DAYS일 이상 된 hanwha_*.xlsx / *.txt 파일 삭제"""
+    import re
     now = datetime.now()
     patterns = [
         os.path.join(OUTPUT_DIR, "hanwha_*.xlsx"),
@@ -434,14 +435,17 @@ def cleanup_old_files():
     deleted = 0
     for pattern in patterns:
         for fpath in glob.glob(pattern):
-            mtime = datetime.fromtimestamp(os.path.getmtime(fpath))
-            if (now - mtime).days >= KEEP_DAYS:
+            filename = os.path.basename(fpath)
+            match = re.search(r"\d{8}", filename)
+            if match:
                 try:
-                    os.remove(fpath)
-                    print(f"  [삭제] 삭제: {os.path.basename(fpath)}")
-                    deleted += 1
+                    file_date = datetime.strptime(match.group(0), "%Y%m%d")
+                    if (now - file_date).days >= KEEP_DAYS:
+                        os.remove(fpath)
+                        print(f"  [삭제] 삭제: {filename}")
+                        deleted += 1
                 except Exception as e:
-                    print(f"  [오류] 삭제 실패: {os.path.basename(fpath)} ({e})")
+                    print(f"  [오류] 삭제 실패: {filename} ({e})")
     if deleted:
         print(f"  [정보] 총 {deleted}개 파일 삭제 완료 ({KEEP_DAYS}일 이상)")
     else:

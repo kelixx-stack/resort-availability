@@ -335,14 +335,19 @@ def save_txt(all_data):
 
 def cleanup_old_files():
     import glob as gb
+    import re
     now = datetime.now()
     for pattern in [os.path.join(OUTPUT_DIR, "lotte_*.xlsx"),
                     os.path.join(OUTPUT_DIR, "lotte_*.txt")]:
         for f in gb.glob(pattern):
-            if (now - datetime.fromtimestamp(os.path.getmtime(f))).days >= KEEP_DAYS:
+            filename = os.path.basename(f)
+            match = re.search(r"\d{8}", filename)
+            if match:
                 try:
-                    os.remove(f)
-                    print(f"  [삭제] 삭제: {os.path.basename(f)}")
+                    file_date = datetime.strptime(match.group(0), "%Y%m%d")
+                    if (now - file_date).days >= KEEP_DAYS:
+                        os.remove(f)
+                        print(f"  [삭제] 삭제: {filename}")
                 except Exception:
                     pass
 
