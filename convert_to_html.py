@@ -1017,6 +1017,67 @@ body.dark-mode .top-btn{
   opacity: 0.95;
 }
 
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #71717a);
+  transition: all 0.2s ease;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+.copy-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text);
+  opacity: 1;
+  transform: scale(1.1);
+}
+body.dark-mode .copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.card-top-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(24, 24, 27, 0.9);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.toast-container.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+body.dark-mode .toast-container {
+  background: rgba(255, 255, 255, 0.95);
+  color: #18181b;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
 
 @media(max-width: 640px) {
   header h1 {
@@ -1071,67 +1132,6 @@ body.dark-mode .top-btn{
   .list{
     padding: 0 8px 20px;
     grid-template-columns: 1fr;
-  }
-  .copy-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 3px;
-    font-size: 11px;
-    line-height: 1;
-    border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted, #71717a);
-    transition: all 0.2s ease;
-    opacity: 0.6;
-    margin-left: 2px;
-  }
-  .copy-btn:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--text);
-    opacity: 1;
-    transform: scale(1.1);
-  }
-  body.dark-mode .copy-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  .card-top-right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .toast-container {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: rgba(24, 24, 27, 0.9);
-    color: #ffffff;
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    z-index: 9999;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-    opacity: 0;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .toast-container.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-  body.dark-mode .toast-container {
-    background: rgba(255, 255, 255, 0.95);
-    color: #18181b;
-    border: 1px solid rgba(0, 0, 0, 0.05);
   }
 }
 </style>
