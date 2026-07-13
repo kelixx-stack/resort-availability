@@ -1523,6 +1523,7 @@ function loadMore() {
       <span class="brand-tag tag-${d[BRAND]}">${d[BRAND]}</span>
       <button class="copy-btn" onclick="copyCardInfo(event, this)" 
               data-resort="${d[RESORT] || '-'}"
+              data-region="${region}"
               data-date="${dateDisplay}${yoilSpan}"
               data-type="${d[TYPE] || '-'}"
               data-count="${avail}"
@@ -1642,11 +1643,12 @@ initTheme();
 function copyCardInfo(event, btn) {
   if (event) event.stopPropagation();
   const resort = btn.dataset.resort;
+  const region = btn.dataset.region;
   const date = btn.dataset.date;
   const type = btn.dataset.type;
   const count = btn.dataset.count;
   
-  const text = `[휴양소 잔여객실] ${resort} | ${date} | ${type} (${count})`;
+  const text = `${resort} / ${region} / ${date} / ${type} (${count})`;
   
   navigator.clipboard.writeText(text).then(() => {
     showToast(`${resort} 정보가 복사되었습니다! 📋`);
