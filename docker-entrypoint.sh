@@ -8,7 +8,7 @@ echo "  실행 시각: $(date)"
 echo "  실행 모드 (JOB_TYPE): ${JOB_TYPE:-resort}"
 echo "====================================================="
 
-# AWS SNS를 이용해 오류/로그인 만료 발생 시 경보 메일을 보낼 함수 정의
+# AWS SNS를 이용해 오류/로그인 만료 발생 시 경보 메일 보낼 함수 정의
 send_alert() {
     local job_name=$1
     local error_details=$2
@@ -16,7 +16,6 @@ send_alert() {
     if [ -n "${SNS_TOPIC_ARN}" ]; then
         echo "  [경보 알림] AWS SNS를 통해 에러 경보 메일을 송신합니다... (대상: ${job_name})"
         
-        # 줄바꿈 처리가 포함된 메일 본문 구성
         local email_message="[휴양소 수집 자동화 시스템 장애 감지 알림]
 
 작업 명칭: ${job_name}
@@ -55,8 +54,8 @@ EOF
 echo "  -> 루트 .env 생성 완료."
 
 echo "2. 사내 게시판 업데이트용 .env 파일 생성 중..."
-mkdir -p /app/회사게시판자동화
-cat <<EOF > /app/회사게시판자동화/.env
+mkdir -p /app/board_automation
+cat <<EOF > /app/board_automation/.env
 id : ${BOARD_ID}
 Password : ${BOARD_PASSWORD}
 
@@ -84,10 +83,10 @@ if [ "${JOB_TYPE}" = "cafeteria" ]; then
     echo "  [식당 메뉴 자동화 모드] 구내식당 수집 및 업로드 시작"
     echo "====================================================="
     
-    if [ -f "/app/회사게시판자동화/update_cafeteria.py" ]; then
-        python /app/회사게시판자동화/update_cafeteria.py || send_alert "구내식당 메뉴 자동 수집 및 수정기" "식당 메뉴 정보를 가져와 사내 게시판 글을 수정하는 도중 에러가 발생했습니다. 사내망 패스워드가 만료되었거나 변경 주기가 도달했는지 체크해 보십시오."
+    if [ -f "/app/board_automation/update_cafeteria.py" ]; then
+        python /app/board_automation/update_cafeteria.py || send_alert "구내식당 메뉴 자동 수집 및 수정기" "식당 메뉴 정보를 가져와 사내 게시판 글을 수정하는 도중 에러가 발생했습니다. 사내망 패스워드가 만료되었거나 변경 주기가 도달했는지 체크해 보십시오."
     else
-        echo "[경고] '/app/회사게시판자동화/update_cafeteria.py' 파일이 존재하지 않습니다."
+        echo "[경고] '/app/board_automation/update_cafeteria.py' 파일이 존재하지 않습니다."
         echo "구내식당 수집기 모듈을 프로젝트에 추가해 주세요."
         exit 1
     fi
@@ -116,7 +115,7 @@ else
     python /app/generate_rag_text.py
     
     echo "[단계 4/4] 사내 게시판 (dhr.hanati.co.kr) 자동 업데이트 실행..."
-    python /app/회사게시판자동화/update_board.py || send_alert "사내 게시판 자동 수정기" "사내 인사시스템 게시판 로그인에 실패했거나 수정 과정에서 오류가 났습니다. 사내망 패스워드 만료 여부 및 변경 권장 창 유무를 확인하십시오."
+    python /app/board_automation/update_board.py || send_alert "사내 게시판 자동 수정기" "사내 인사시스템 게시판 로그인에 실패했거나 수정 과정에서 오류가 났습니다. 사내망 패스워드 만료 여부 및 변경 권장 창 유무를 확인하십시오."
     
     # 3. AWS S3 결과 파일 동기화 업로드
     if [ -n "${S3_BUCKET}" ]; then
