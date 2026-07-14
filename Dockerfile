@@ -29,11 +29,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 시스템 로케일 한글 설정
 RUN echo "ko_KR.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
-# Google Chrome Stable 버전 설치 (Selenium 구동용)
-RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+# Google Chrome Stable 버전 설치 (deb 패키지 직접 다운로드 방식 - apt-key 의존성 없음)
+RUN curl -sS -o google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && apt-get update \
-    && apt-get install -y google-chrome-stable \
+    && apt-get install -y ./google-chrome-stable_current_amd64.deb \
+    && rm google-chrome-stable_current_amd64.deb \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
