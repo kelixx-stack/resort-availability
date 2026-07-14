@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Chrome/Selenium 구동 필수 라이브러리
     libglib2.0-0 \
     libnss3 \
-    libgconf-2-4 \
     libfontconfig1 \
     libxss1 \
     libasound2 \
