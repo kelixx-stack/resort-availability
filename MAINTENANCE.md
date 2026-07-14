@@ -158,3 +158,35 @@ graph TD
 2. **원격 백업**: 수정이 완료되면 AI 에이전트가 로컬 PC의 깃 명령어를 사용하여 GitHub 원격 저장소로 코드(`git push`)를 업로드합니다.
 3. **도커 빌드**: 깃허브가 푸시를 감지하고 `deploy_to_aws.yml`을 작동시켜 AWS ECR 저장소의 최신 이미지를 빌드 및 갱신합니다.
 4. **AWS 실행**: 예약된 시각에 AWS Fargate가 기동될 때 새로 갱신된 이미지를 내려받아 동작하므로, 개발자는 소스코드 수정 요청 한 번만으로 최종 클라우드 반영까지 자동으로 완료됩니다.
+
+---
+
+## 7. 주요 서비스 웹 주소 및 계정 정보 목록 (Key Links & IDs)
+
+보안 관리를 위해 비밀번호는 포함하지 않으며, 각 시스템의 주소와 관리용 아이디만 나열합니다. (비밀번호 원본은 AWS Parameter Store에서 안전하게 암호화되어 관리됩니다.)
+
+### 🌐 대시보드 및 사내 시스템 주소
+* **정적 웹 대시보드 (CloudFront)**
+  * **주소**: [https://d1dfi9fx8odtjm.cloudfront.net](https://d1dfi9fx8odtjm.cloudfront.net)
+  * **기능**: 리조트 수집 결과 잔여 객실 현황판 (직원 전파 및 단축 URL 변환용)
+* **사내 인사시스템 게시판**
+  * **주소**: [https://dhr.hanati.co.kr/index.jsp](https://dhr.hanati.co.kr/index.jsp)
+  * **사용 아이디**: AWS Parameter Store의 `/resort-automation/prod/board/BOARD_ID`에 등록된 관리 사원번호
+* **GitHub 원격 소스코드 저장소**
+  * **주소**: [https://github.com/kelixx-stack/resort-availability](https://github.com/kelixx-stack/resort-availability)
+
+### ☁️ AWS 클라우드 인프라
+* **AWS 웹 콘솔 로그인**
+  * **주소**: [https://console.aws.amazon.com](https://console.aws.amazon.com)
+  * **계정 ID (12자리 숫자)**: `297601880815`
+  * **배포 및 관리용 IAM 사용자명**: `resort-deployer`
+* **아마존 S3 버킷 (엑셀 백업 및 웹 원본 저장소)**
+  * **이름**: `resort-automation-prod-dashboard-bucket`
+* **아마존 ECR 리포지토리 (도커 이미지 레지스트리)**
+  * **주소**: `297601880815.dkr.ecr.ap-northeast-2.amazonaws.com/resort-automation-repo`
+
+### 🏨 수집 대상 리조트사 로그인 페이지
+* **리솜 리조트**: [https://www.resom.co.kr](https://www.resom.co.kr)
+* **소노 호텔앤리조트**: [https://www.sonohotelsresorts.com](https://www.sonohotelsresorts.com)
+* **롯데 리조트**: [https://resort.lottehotel.com](https://resort.lottehotel.com)
+* **한화 리조트**: [https://www.hanwharesort.co.kr](https://www.hanwharesort.co.kr)
