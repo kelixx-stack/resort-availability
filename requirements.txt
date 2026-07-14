@@ -1,0 +1,10 @@
+pandas
+openpyxl
+python-dotenv
+playwright
+beautifulsoup4
+python-dateutil
+selenium
+webdriver-manager
+boto3
+awscli
