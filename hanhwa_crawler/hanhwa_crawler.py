@@ -39,9 +39,9 @@ MEMBERSHIP_PWD = os.getenv("HANHWA_MEMBERSHIP_PW", "여기에_회원권비밀번
 RESORT_TABS = [
     "설악 쏘라노",
     "설악 별관",
-    "용인베잔송",
-    "산정호수 안시",
-    "대천 파로스",
+    "용인",
+    "산정호수",
+    "대천",
     "경주 에톤",
     "경주 담톤",
     "제주",
@@ -248,6 +248,17 @@ def collect_all_data(driver):
                 """)
                 if not clicked:
                     print(f"           [경고] 탭 없음 (스킵): {tab_name}")
+                    # 화면에 실제 표시되는 한화리조트 탭들을 진단용 로그로 출력
+                    available_tabs = driver.execute_script("""
+                        var tabs = document.querySelectorAll('ul#brch-tab li a, ul.calendar-tab li a');
+                        var names = [];
+                        for(var i=0; i<tabs.length; i++){
+                            var name = tabs[i].textContent.trim();
+                            if(name) names.push(name);
+                        }
+                        return names;
+                    """)
+                    print(f"           [진단] 현재 웹 화면상의 탭 목록: {available_tabs}")
                     continue
                 time.sleep(2)
 
