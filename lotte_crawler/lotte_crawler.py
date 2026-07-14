@@ -189,7 +189,7 @@ def collect_all(page):
     js_code = """
     async function fetchAllCalendar(tasks) {
         const results = [];
-        const chunkSize = 8; // 8개 동시 요청으로 속도 개선
+        const chunkSize = 24; // 24개 동시 요청으로 병렬 수집 성능 대폭 개선 (WAF 차단 회피 한도 유지)
         for (let i = 0; i < tasks.length; i += chunkSize) {
             const chunk = tasks.slice(i, i + chunkSize);
             const promises = chunk.map(task => 
