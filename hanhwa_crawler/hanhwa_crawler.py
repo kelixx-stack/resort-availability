@@ -122,7 +122,8 @@ def do_login(driver):
     print("  → 1단계: 아이디/비밀번호 입력...")
     wait.until(EC.element_to_be_clickable((By.ID, "id"))).send_keys(LOGIN_ID)
     wait.until(EC.element_to_be_clickable((By.ID, "pwd"))).send_keys(LOGIN_PWD)
-    wait.until(EC.element_to_be_clickable((By.ID, "btnLogin"))).click()
+    btn1 = wait.until(EC.element_to_be_clickable((By.ID, "btnLogin")))
+    driver.execute_script("arguments[0].click();", btn1)
     time.sleep(3)
     print(f"     → {driver.current_url}")
 
@@ -135,9 +136,10 @@ def do_login(driver):
         mem_pw.clear()
         mem_pw.send_keys(MEMBERSHIP_PWD)
         time.sleep(0.5)
-        wait.until(EC.element_to_be_clickable(
+        btn2 = wait.until(EC.element_to_be_clickable(
             (By.CSS_SELECTOR, "a.ui_button.brown")
-        )).click()
+        ))
+        driver.execute_script("arguments[0].click();", btn2)
         time.sleep(3)
         print(f"     → {driver.current_url}")
     except Exception as e:
@@ -166,7 +168,8 @@ def do_login(driver):
         mem_pw2.clear()
         mem_pw2.send_keys(MEMBERSHIP_PWD)
         time.sleep(0.5)
-        driver.find_element(By.CSS_SELECTOR, "a.ui_button.brown").click()
+        btn3 = driver.find_element(By.CSS_SELECTOR, "a.ui_button.brown")
+        driver.execute_script("arguments[0].click();", btn3)
         time.sleep(4)
         print(f"     → {driver.current_url}")
     except Exception:
