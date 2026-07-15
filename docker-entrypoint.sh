@@ -123,9 +123,9 @@ else
         echo "  S3 결과 전송 시작 (Bucket: s3://${S3_BUCKET})"
         echo "====================================================="
         
-        # 정적 웹 대시보드 업로드
-        aws s3 cp /app/resort_availability.html s3://${S3_BUCKET}/resort_availability.html
-        aws s3 cp /app/index.html s3://${S3_BUCKET}/index.html
+        # 정적 웹 대시보드 업로드 (Cache-Control 설정으로 실시간 반영)
+        aws s3 cp /app/resort_availability.html s3://${S3_BUCKET}/resort_availability.html --cache-control "no-cache, no-store, must-revalidate"
+        aws s3 cp /app/index.html s3://${S3_BUCKET}/index.html --cache-control "no-cache, no-store, must-revalidate"
         
         # 날짜별 원본 엑셀 파일 아카이빙 백업
         aws s3 sync /app/resom_crawler/data s3://${S3_BUCKET}/data/resom/
