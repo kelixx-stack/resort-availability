@@ -84,6 +84,8 @@ locals {
     "/board/POST_ID_HANHWA_M1"      = "9389344"
     "/board/POST_ID_HANHWA_M2"      = "9389352"
     "/board/POST_ID_HANHWA_M3"      = "9389354"
+    "/board/POST_ID_MENU"           = "9393095"
+    "/board/POST_ID_CAFETERIA"      = "9393095"
   }
 }
 
@@ -259,7 +261,8 @@ resource "aws_ecs_task_definition" "task" {
       }
       environment = [
         { name = "S3_BUCKET", value = aws_s3_bucket.dashboard.id },
-        { name = "SNS_TOPIC_ARN", value = aws_sns_topic.alerts.arn }
+        { name = "SNS_TOPIC_ARN", value = aws_sns_topic.alerts.arn },
+        { name = "TZ", value = "Asia/Seoul" }
       ]
       secrets = [
         { name = "RESOM_ID", valueFrom = aws_ssm_parameter.credentials["/resort/RESOM_ID"].arn },
@@ -284,7 +287,9 @@ resource "aws_ecs_task_definition" "task" {
         { name = "POST_ID_SONO_M3", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_SONO_M3"].arn },
         { name = "POST_ID_HANHWA_M1", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_HANHWA_M1"].arn },
         { name = "POST_ID_HANHWA_M2", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_HANHWA_M2"].arn },
-        { name = "POST_ID_HANHWA_M3", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_HANHWA_M3"].arn }
+        { name = "POST_ID_HANHWA_M3", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_HANHWA_M3"].arn },
+        { name = "POST_ID_MENU", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_MENU"].arn },
+        { name = "POST_ID_CAFETERIA", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_CAFETERIA"].arn }
       ]
     }
   ])
@@ -463,17 +468,17 @@ resource "aws_iam_role_policy_attachment" "eventbridge_run_task_attach" {
   policy_arn = aws_iam_policy.eventbridge_run_task.arn
 }
 
-# 10.1. 리조트 크롤링 스케줄링 (평일 한국 시간 8:15, 10:15, 12:15, 14:15, 16:15)
-# cron 표기는 UTC 기준이므로 한국 기준 -9시간 적용: (23:15, 01:15, 03:15, 05:15, 07:15)
-resource "aws_cloudwatch_event_rule" "resort_schedule" {
-  name                = "${var.project_name}-resort-rule"
-  description         = "Schedule for Resort vacancy crawl (Weekdays 5 times)"
-  schedule_expression = "cron(15 23,1,3,5,7 ? * MON-FRI *)"
+# 10.1. 리조트 크롤링 스케줄링 (순수 한국 평일 기준 08:15, 10:15, 12:15, 14:15, 16:15 KST)
+# 1) 아침 08:15 KST (월~금 KST) -> UTC 기준 일~목 23:15 UTC (cron(15 23 ? * SUN-THU *))
+resource "aws_cloudwatch_event_rule" "resort_schedule_morning" {
+  name                = "${var.project_name}-resort-morning-rule"
+  description         = "Schedule for Resort vacancy crawl (Morning 08:15 KST, Mon-Fri KST)"
+  schedule_expression = "cron(15 23 ? * SUN-THU *)"
 }
 
-resource "aws_cloudwatch_event_target" "resort_target" {
-  rule      = aws_cloudwatch_event_rule.resort_schedule.name
-  target_id = "ResortCrawlerTarget"
+resource "aws_cloudwatch_event_target" "resort_target_morning" {
+  rule      = aws_cloudwatch_event_rule.resort_schedule_morning.name
+  target_id = "ResortCrawlerTargetMorning"
   arn       = aws_ecs_cluster.main.arn
   role_arn  = aws_iam_role.eventbridge_role.arn
 
@@ -501,12 +506,49 @@ resource "aws_cloudwatch_event_target" "resort_target" {
   })
 }
 
-# 10.2. 구내식당 수집 스케줄링 (매일 한국 시간 11:30)
-# UTC 기준: (02:30)
+# 2) 주간 10:15, 12:15, 14:15, 16:15 KST (월~금 KST) -> UTC 기준 월~금 01:15, 03:15, 05:15, 07:15 UTC (cron(15 1,3,5,7 ? * MON-FRI *))
+resource "aws_cloudwatch_event_rule" "resort_schedule_daytime" {
+  name                = "${var.project_name}-resort-daytime-rule"
+  description         = "Schedule for Resort vacancy crawl (Daytime 10:15-16:15 KST, Mon-Fri KST)"
+  schedule_expression = "cron(15 1,3,5,7 ? * MON-FRI *)"
+}
+
+resource "aws_cloudwatch_event_target" "resort_target_daytime" {
+  rule      = aws_cloudwatch_event_rule.resort_schedule_daytime.name
+  target_id = "ResortCrawlerTargetDaytime"
+  arn       = aws_ecs_cluster.main.arn
+  role_arn  = aws_iam_role.eventbridge_role.arn
+
+  ecs_target {
+    task_count          = 1
+    task_definition_arn = aws_ecs_task_definition.task.arn
+    launch_type         = "FARGATE"
+
+    network_configuration {
+      subnets          = data.aws_subnets.default.ids
+      security_groups  = [aws_security_group.ecs_tasks.id]
+      assign_public_ip = true
+    }
+  }
+
+  input = jsonencode({
+    containerOverrides = [
+      {
+        name = "crawler-container"
+        environment = [
+          { name = "JOB_TYPE", value = "resort" }
+        ]
+      }
+    ]
+  })
+}
+
+# 10.2. 구내식당 수집 스케줄링 (매일 한국 시간 23:00)
+# UTC 기준: (14:00)
 resource "aws_cloudwatch_event_rule" "cafeteria_schedule" {
   name                = "${var.project_name}-cafeteria-rule"
-  description         = "Schedule for Cafeteria menu sync (Daily 1 time)"
-  schedule_expression = "cron(30 2 * * ? *)"
+  description         = "Schedule for Cafeteria menu sync (Daily 1 time at 23:00 KST)"
+  schedule_expression = "cron(0 14 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "cafeteria_target" {
