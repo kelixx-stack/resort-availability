@@ -162,6 +162,10 @@ def collect_all(page):
     tasks = []
     for biz_cd, resort_nm in TARGET_RESORTS.items():
         for d in dates:
+            # 여름 성수기 스킵 (2026-07-24 ~ 2026-08-22)
+            if date(2026, 7, 24) <= d <= date(2026, 8, 22):
+                continue
+                
             checkin_str = d.strftime("%Y%m%d")
             checkout_str = (d + timedelta(days=1)).strftime("%Y%m%d")
             month_label = d.strftime("%Y.%m")
@@ -210,6 +214,9 @@ def collect_all(page):
         return { results };
     }
     """
+    
+    print("  [정보] 로그인 직후 잔여 세션 트래픽 정리를 위해 12초 대기 중...")
+    page.wait_for_timeout(12000)
     
     t0 = time.time()
     res_obj = page.evaluate(
