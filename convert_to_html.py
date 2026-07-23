@@ -852,23 +852,6 @@ body.dark-mode .rate-dropdown-content {
   border-color: var(--border-hover);
 }
 
-.summer-notice-box {
-  background: rgba(244, 63, 94, 0.08);
-  border: 1.5px solid rgba(244, 63, 94, 0.25);
-  color: var(--롯데);
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  margin: 0 16px 16px;
-  font-size: 13px;
-  line-height: 1.5;
-  transition: all 0.2s ease;
-}
-body.dark-mode .summer-notice-box {
-  background: rgba(244, 63, 94, 0.12);
-  border-color: rgba(244, 63, 94, 0.35);
-}
-
 /* Card List */
 .list{
   padding: 0 16px 24px;
@@ -1272,10 +1255,6 @@ body.dark-mode .toast-container {
   <button class="reset-btn" onclick="reset()">검색 필터 초기화</button>
 </div>
 
-<div id="summerNotice" class="summer-notice-box">
-  ⚠️ 롯데리조트 여름 성수기(07.24 ~ 08.22) 기간은 회원권 권한 소진으로 인해 조회가 불가합니다.
-</div>
-
 <div class="list" id="list"></div>
 <div id="sentinel" style="padding: 24px 0; text-align: center; width: 100%; color: var(--text-muted); font-size: 13px; font-weight: 500; display: none;">
   <span id="sentinel-text">불러오는 중...</span>
@@ -1345,15 +1324,6 @@ function setBrand(b){
     const bv=card.dataset.brand;
     card.className='dash-card'+(b===bv?' active active-'+(b||'all'):'');
   });
-  
-  const noticeEl = document.getElementById('summerNotice');
-  if (noticeEl) {
-    if (b === '롯데' || !b) {
-      noticeEl.style.display = 'block';
-    } else {
-      noticeEl.style.display = 'none';
-    }
-  }
   
   // Reset child dropdowns when changing brand
   ['s-region','s-resort','s-month','s-day','s-type'].forEach(id=>document.getElementById(id).value='');
