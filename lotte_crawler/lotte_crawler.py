@@ -144,7 +144,7 @@ def collect_all(page):
     print("  [정보] 리조트 서브도메인 세션 활성화 중...")
     for attempt in range(3):
         try:
-            page.goto("https://resort.lottehotel.com/main/ko/index", timeout=60000, wait_until="domcontentloaded")
+            page.goto("https://resort.lottehotel.com/main/ko/reservation/accommodation", timeout=60000, wait_until="domcontentloaded")
             break
         except Exception as e:
             if attempt == 2:
