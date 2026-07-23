@@ -25,3 +25,14 @@ Desktop.ini
 *.njsproj
 *.sln
 *.swp
+
+# Crawler data output files
+**/data/*.xlsx
+**/data/*.csv
+**/data/*.txt
+
+# Local temporary log files
+*.log
+ecs_logs*.json
+ecs_logs*.txt
+lotte_requests_log*.txt
