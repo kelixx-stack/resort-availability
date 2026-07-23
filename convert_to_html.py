@@ -1234,8 +1234,7 @@ body.dark-mode .toast-container {
       <div class="rate-dropdown-content">
         <a href="요금표/리솜/2026년+객실이용요금표(+레스트리+키즈룸).pdf" target="_blank">리솜 객실 요금표</a>
         <a href="요금표/한화/2026년_회원요금표.xlsx" download>한화 객실 요금표</a>
-        <a href="요금표/소노/2026년+소노리조트_회원요금표_260716+까지.pdf" target="_blank">소노 객실 요금표 (~26.07.16)</a>
-        <a href="요금표/소노/2026년+소노리조트_회원요금표_260717~270715.pdf" target="_blank">소노 객실 요금표 (26.07.17~)</a>
+        <a href="요금표/소노/2026년+소노리조트_회원요금표_260717~270715.pdf" target="_blank">소노 객실 요금표</a>
         <a href="요금표/롯데/2026년 객실 요금표_속초부여.pdf" target="_blank">롯데 객실 요금표 (속초/부여)</a>
         <a href="요금표/롯데/2026년 객실 요금표_김해.pdf" target="_blank">롯데 객실 요금표 (김해)</a>
       </div>

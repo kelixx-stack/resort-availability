@@ -130,6 +130,9 @@ else
         aws s3 cp /app/resort_availability.html s3://${S3_BUCKET}/resort_availability.html --cache-control "no-cache, no-store, must-revalidate"
         aws s3 cp /app/index.html s3://${S3_BUCKET}/index.html --cache-control "no-cache, no-store, must-revalidate"
         
+        # 객실 요금표 문서 업로드
+        aws s3 sync /app/요금표 s3://${S3_BUCKET}/요금표/
+        
         # 날짜별 원본 엑셀 파일 아카이빙 백업
         aws s3 sync /app/resom_crawler/data s3://${S3_BUCKET}/data/resom/
         aws s3 sync /app/sono_crawler/data s3://${S3_BUCKET}/data/sono/
