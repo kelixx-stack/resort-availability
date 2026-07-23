@@ -173,6 +173,7 @@ def collect_all(page):
                     f"?rsvType=BAR&procType=&bizCd={biz_cd}&checkinDt={checkin_str}&checkoutDt={checkout_str}"
                     f"&memberNo={mem_no}&exclusiveCd=&rsvNo=&userId=&userNm=&userMobile="
                     f"&roomType=&roomFlg=&membYearUseDaysType=1&deadLineDay=&packageNo=&petDetailList="
+                    f"&waitingPassYn=&refreshCouponNo=&ownType=5&roomCnt=1"
                 )
                 tasks.append({
                     "url": url,
