@@ -1017,6 +1017,21 @@ body.dark-mode .top-btn{
   opacity: 0.95;
 }
 
+.card-bottom {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-light, #e4e4e7);
+  text-align: right;
+}
+body.dark-mode .card-bottom {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+.price-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .copy-btn {
   background: none;
   border: none;
@@ -1264,6 +1279,7 @@ const DAY    = 4;  // 일
 const YOIL   = 5;  // 요일
 const TYPE   = 6;  // 객실타입
 const COUNT  = 7;  // 예약가능수
+const PRICE  = 8;  // 요금
 
 function uniq(arr){return [...new Set(arr.filter(Boolean))].sort((a,b)=>isNaN(a)?a.localeCompare(b,'ko'):Number(a)-Number(b));}
 
@@ -1514,6 +1530,19 @@ function loadMore() {
 
     let yoilSpan = d[YOIL] ? `(${d[YOIL]})` : '';
     
+    let priceHtml = '';
+    let priceAttr = '';
+    if (d[PRICE] && String(d[PRICE]).trim() !== '' && String(d[PRICE]) !== 'nan') {
+      const priceVal = Number(String(d[PRICE]).replace(/[^0-9]/g, ''));
+      if (!isNaN(priceVal) && priceVal > 0) {
+        priceAttr = `data-price="${priceVal.toLocaleString()}원"`;
+        priceHtml = `
+  <div class="card-bottom">
+    <span class="price-val">${priceVal.toLocaleString()} 원</span>
+  </div>`;
+      }
+    }
+    
     return `
 <div class="card card-${d[BRAND]}">
   <div class="card-top">
@@ -1527,6 +1556,7 @@ function loadMore() {
               data-date="${dateDisplay}${yoilSpan}"
               data-type="${d[TYPE] || '-'}"
               data-count="${avail}"
+              ${priceAttr}
               title="정보 복사">🔗</button>
     </div>
   </div>
@@ -1544,6 +1574,7 @@ function loadMore() {
       <span class="info-val avail-cnt avail-${d[BRAND]}">${avail}</span>
     </div>
   </div>
+  ${priceHtml}
 </div>`;
   }).join('');
   
@@ -1647,8 +1678,12 @@ function copyCardInfo(event, btn) {
   const date = btn.dataset.date;
   const type = btn.dataset.type;
   const count = btn.dataset.count;
+  const price = btn.dataset.price;
   
-  const text = `${resort} / ${region} / ${date} / ${type} (${count})`;
+  let text = `${resort} / ${region} / ${date} / ${type} (${count})`;
+  if (price) {
+    text += ` / 요금: ${price}`;
+  }
   
   navigator.clipboard.writeText(text).then(() => {
     showToast(`${resort} 정보가 복사되었습니다! 📋`);
@@ -1706,7 +1741,7 @@ def get_file_update_times():
     return times
 
 def generate(df):
-    export_cols = ["브랜드", "리조트명", "지역", "년월", "일", "요일", "객실타입", "예약가능수"]
+    export_cols = ["브랜드", "리조트명", "지역", "년월", "일", "요일", "객실타입", "예약가능수", "요금"]
     data_list = df[export_cols].values.tolist()
     data_json = json.dumps(data_list, ensure_ascii=False)
     kst = timezone(timedelta(hours=9))
