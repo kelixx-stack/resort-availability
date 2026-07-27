@@ -250,8 +250,11 @@ def main():
                 day_str = str(int(date_str[6:8]))
                 checkin_dt = date(int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8]))
                 
+                EXCLUDE_STORES = ["르네블루 by 쏠비치", "소노캄 경주", "파나크 영덕", "팔라티움 해운대"]
                 for store in body:
                     store_nm = store.get("storeNm", "").strip()
+                    if store_nm in EXCLUDE_STORES:
+                        continue
                     for rt in store.get("rmTypeList", []):
                         status_cd = rt.get("rsvStatusCd")
                         # 예약가능("A" = 예약원활, "E" = 마감임박) 한 것만 수집
