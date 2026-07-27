@@ -86,6 +86,9 @@ locals {
     "/board/POST_ID_HANHWA_M3"      = "9389354"
     "/board/POST_ID_MENU"           = "9393095"
     "/board/POST_ID_CAFETERIA"      = "9393095"
+    "/board/CAFETERIA_API_URL"      = "http://devapi.smartolivecorp.com"
+    "/board/CAFETERIA_API_KEY"      = "08c45e0d58ec1d66a8f3102a0fae13b8"
+    "/board/CAFETERIA_STORE_ID"     = "3343"
   }
 }
 
@@ -289,7 +292,10 @@ resource "aws_ecs_task_definition" "task" {
         { name = "POST_ID_HANHWA_M2", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_HANHWA_M2"].arn },
         { name = "POST_ID_HANHWA_M3", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_HANHWA_M3"].arn },
         { name = "POST_ID_MENU", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_MENU"].arn },
-        { name = "POST_ID_CAFETERIA", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_CAFETERIA"].arn }
+        { name = "POST_ID_CAFETERIA", valueFrom = aws_ssm_parameter.credentials["/board/POST_ID_CAFETERIA"].arn },
+        { name = "CAFETERIA_API_URL", valueFrom = aws_ssm_parameter.credentials["/board/CAFETERIA_API_URL"].arn },
+        { name = "CAFETERIA_API_KEY", valueFrom = aws_ssm_parameter.credentials["/board/CAFETERIA_API_KEY"].arn },
+        { name = "CAFETERIA_STORE_ID", valueFrom = aws_ssm_parameter.credentials["/board/CAFETERIA_STORE_ID"].arn }
       ]
     }
   ])

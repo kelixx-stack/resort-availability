@@ -26,10 +26,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 RAG_PATH = os.path.join(BASE_DIR, "menu_weekly_latest.txt")
 
-# 스마트올리브 API 설정
-BASE_URL = "http://devapi.smartolivecorp.com"
-API_KEY  = "08c45e0d58ec1d66a8f3102a0fae13b8"
-STORE_ID = 3343  # 하나금융데이터센터 구내식당
+# 스마트올리브 API 설정 (환경변수에서 우선 로드하되, 없으면 개발 서버 기본값 사용)
+BASE_URL = os.environ.get("CAFETERIA_API_URL", "http://devapi.smartolivecorp.com").rstrip("/")
+API_KEY  = os.environ.get("CAFETERIA_API_KEY", "08c45e0d58ec1d66a8f3102a0fae13b8")
+STORE_ID = int(os.environ.get("CAFETERIA_STORE_ID", "3343"))  # 하나금융데이터센터 구내식당
 
 HEADERS = {
     "Api-Key": API_KEY,
@@ -127,8 +127,16 @@ def weekly_to_rag(data: dict) -> str:
     days = item.get("days", [])
     now  = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
 
-    today  = date.today()
-    monday = today - timedelta(days=today.weekday())
+    # KST 기준 날짜 계산 (AWS Fargate가 UTC 기준이므로 명시적인 시간대 사용)
+    kst_now = datetime.now(timezone(timedelta(hours=9)))
+    today = kst_now.date()
+
+    # 주말(토요일 5, 일요일 6)에 실행되면 다가오는 다음주 월요일을 기준으로 계산
+    if today.weekday() >= 5:
+        monday = today + timedelta(days=(7 - today.weekday()))
+    else:
+        monday = today - timedelta(days=today.weekday())
+        
     friday = monday + timedelta(days=4)
 
     lines = []
