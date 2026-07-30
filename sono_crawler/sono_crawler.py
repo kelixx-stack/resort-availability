@@ -253,7 +253,7 @@ def main():
                 EXCLUDE_STORES = ["르네블루 by 쏠비치", "소노캄 경주", "파나크 영덕", "팔라티움 해운대"]
                 for store in body:
                     store_nm = store.get("storeNm", "").strip()
-                    if store_nm in EXCLUDE_STORES:
+                    if store_nm in EXCLUDE_STORES or "경주" in store_nm or "감포" in store_nm:
                         continue
                     for rt in store.get("rmTypeList", []):
                         status_cd = rt.get("rsvStatusCd")
