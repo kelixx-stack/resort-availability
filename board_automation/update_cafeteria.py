@@ -26,9 +26,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 RAG_PATH = os.path.join(BASE_DIR, "menu_weekly_latest.txt")
 
-# 스마트올리브 API 설정 (환경변수에서 우선 로드하되, 없으면 개발 서버 기본값 사용)
-BASE_URL = os.environ.get("CAFETERIA_API_URL", "http://devapi.smartolivecorp.com").rstrip("/")
-API_KEY  = os.environ.get("CAFETERIA_API_KEY", "08c45e0d58ec1d66a8f3102a0fae13b8")
+# 스마트올리브 API 설정 (환경변수에서 우선 로드하되, 없으면 운영 서버 기본값 사용)
+BASE_URL = os.environ.get("CAFETERIA_API_URL", "https://api.smartolivecorp.com").rstrip("/")
+API_KEY  = os.environ.get("CAFETERIA_API_KEY", "e56d8f6475cc37020e1f524229ca75e4")
 STORE_ID = int(os.environ.get("CAFETERIA_STORE_ID", "3343"))  # 하나금융데이터센터 구내식당
 
 HEADERS = {

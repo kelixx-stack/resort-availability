@@ -86,8 +86,8 @@ locals {
     "/board/POST_ID_HANHWA_M3"      = "9389354"
     "/board/POST_ID_MENU"           = "9393095"
     "/board/POST_ID_CAFETERIA"      = "9393095"
-    "/board/CAFETERIA_API_URL"      = "http://devapi.smartolivecorp.com"
-    "/board/CAFETERIA_API_KEY"      = "08c45e0d58ec1d66a8f3102a0fae13b8"
+    "/board/CAFETERIA_API_URL"      = "https://api.smartolivecorp.com"
+    "/board/CAFETERIA_API_KEY"      = "e56d8f6475cc37020e1f524229ca75e4"
     "/board/CAFETERIA_STORE_ID"     = "3343"
   }
 }
