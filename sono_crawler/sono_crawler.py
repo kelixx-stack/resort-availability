@@ -41,6 +41,22 @@ TXT_FILE   = os.path.join(OUTPUT_DIR, f"sono_{TIMESTAMP}.txt")
 
 WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"]
 
+# ─── 수집 제외 대상 설정 (블랙리스트) ────────────────────────
+EXCLUDE_STORES = [
+    "르네블루 by 쏠비치",
+    "소노캄 경주",
+    "파나크 영덕",
+    "팔라티움 해운대",
+]
+
+# 특정 지점 내 제외할 객실타입 목록 { "지점명": ["객실타입1", "객실타입2", ...] }
+EXCLUDE_ROOM_TYPES = {
+    "소노펠리체 비발디파크": [
+        "로얄 펜트하우스",
+        "프레지덴셜 펜트하우스",
+    ],
+}
+
 # ─── 날짜 목록 생성 ───────────────────────────────────────────
 def build_date_range():
     end = START_DATE + relativedelta(months=MONTHS_COUNT)
@@ -250,12 +266,17 @@ def main():
                 day_str = str(int(date_str[6:8]))
                 checkin_dt = date(int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8]))
                 
-                EXCLUDE_STORES = ["르네블루 by 쏠비치", "소노캄 경주", "파나크 영덕", "팔라티움 해운대"]
                 for store in body:
                     store_nm = store.get("storeNm", "").strip()
                     if store_nm in EXCLUDE_STORES or "경주" in store_nm or "감포" in store_nm:
                         continue
+                    
+                    excluded_rooms = EXCLUDE_ROOM_TYPES.get(store_nm, [])
                     for rt in store.get("rmTypeList", []):
+                        room_nm = rt.get("roomTypeNm", "").strip()
+                        if room_nm in excluded_rooms:
+                            continue
+                        
                         status_cd = rt.get("rsvStatusCd")
                         # 예약가능("A" = 예약원활, "E" = 마감임박) 한 것만 수집
                         if status_cd in ["A", "E"]:
@@ -267,7 +288,7 @@ def main():
                                 "년월": year_month,
                                 "일": day_str,
                                 "요일": WEEKDAYS[checkin_dt.weekday()],
-                                "객실타입": rt.get("roomTypeNm", "").strip(),
+                                "객실타입": room_nm,
                                 "예약가능수": str(rt.get("rsvRmCnt", 1)),
                             })
             # 중복 제거 (지점별/날짜별/객실타입별로 가장 큰 예약가능수를 가진 것 유지)
