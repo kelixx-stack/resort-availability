@@ -89,12 +89,18 @@ if [ "${JOB_TYPE}" = "cafeteria" ]; then
     echo "  [식당 메뉴 자동화 모드] 구내식당 수집 및 업로드 시작"
     echo "====================================================="
     
-    if [ -f "/app/board_automation/update_cafeteria.py" ]; then
-        python /app/board_automation/update_cafeteria.py || send_alert "구내식당 메뉴 자동 수집 및 수정기" "식당 메뉴 정보를 가져와 사내 게시판 글을 수정하는 도중 에러가 발생했습니다. 사내망 패스워드가 만료되었거나 변경 주기가 도달했는지 체크해 보십시오."
+    # 사내 인사시스템 구내식당 메뉴 자동 업데이트 비활성화 (요청에 따라 비활성화 처리)
+    # 추후 다시 활성화하려면 ENABLE_CAFETERIA_UPDATE=true 환경변수를 지정하십시오.
+    if [ "${ENABLE_CAFETERIA_UPDATE}" = "true" ]; then
+        if [ -f "/app/board_automation/update_cafeteria.py" ]; then
+            python /app/board_automation/update_cafeteria.py || send_alert "구내식당 메뉴 자동 수집 및 수정기" "식당 메뉴 정보를 가져와 사내 게시판 글을 수정하는 도중 에러가 발생했습니다. 사내망 패스워드가 만료되었거나 변경 주기가 도달했는지 체크해 보십시오."
+        else
+            echo "[경고] '/app/board_automation/update_cafeteria.py' 파일이 존재하지 않습니다."
+            echo "구내식당 수집기 모듈을 프로젝트에 추가해 주세요."
+            exit 1
+        fi
     else
-        echo "[경고] '/app/board_automation/update_cafeteria.py' 파일이 존재하지 않습니다."
-        echo "구내식당 수집기 모듈을 프로젝트에 추가해 주세요."
-        exit 1
+        echo "  -> 구내식당 메뉴 자동화가 비활성화(중단)되어 건너뜁니다."
     fi
 else
     echo "====================================================="

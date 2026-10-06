@@ -555,6 +555,7 @@ resource "aws_cloudwatch_event_rule" "cafeteria_schedule" {
   name                = "${var.project_name}-cafeteria-rule"
   description         = "Schedule for Cafeteria menu sync (Daily 1 time at 23:00 KST)"
   schedule_expression = "cron(0 14 * * ? *)"
+  is_enabled          = false
 }
 
 resource "aws_cloudwatch_event_target" "cafeteria_target" {
