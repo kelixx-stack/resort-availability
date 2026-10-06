@@ -120,8 +120,14 @@ else
     echo "[단계 3/4] RAG 표준 텍스트 데이터 변환 시작..."
     python /app/generate_rag_text.py
     
-    echo "[단계 4/4] 사내 게시판 (dhr.hanati.co.kr) 자동 업데이트 실행..."
-    python /app/board_automation/update_board.py || send_alert "사내 게시판 자동 수정기" "사내 인사시스템 게시판 로그인에 실패했거나 수정 과정에서 오류가 났습니다. 사내망 패스워드 만료 여부 및 변경 권장 창 유무를 확인하십시오."
+    # 사내 인사시스템(dhr.hanati.co.kr) 게시판 자동 업데이트 (요청에 따라 비활성화 처리)
+    # 추후 다시 활성화하려면 ENABLE_BOARD_UPDATE=true 환경변수를 지정하십시오.
+    if [ "${ENABLE_BOARD_UPDATE}" = "true" ]; then
+        echo "[단계 4/4] 사내 게시판 (dhr.hanati.co.kr) 자동 업데이트 실행..."
+        python /app/board_automation/update_board.py || send_alert "사내 게시판 자동 수정기" "사내 인사시스템 게시판 로그인에 실패했거나 수정 과정에서 오류가 났습니다. 사내망 패스워드 만료 여부 및 변경 권장 창 유무를 확인하십시오."
+    else
+        echo "[단계 4/4] 사내 게시판 (dhr.hanati.co.kr) 자동 업데이트가 비활성화(중단)되어 건너뜁니다."
+    fi
     
     # 3. AWS S3 결과 파일 동기화 업로드
     if [ -n "${S3_BUCKET}" ]; then
