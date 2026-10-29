@@ -2,9 +2,9 @@
 롯데리조트 잔여객실 크롤러
 ============================
 - Playwright 기반
-- SSO 로그인 처리
+- SSO 로그인 처리 (L.POINT 연동 및 분양회원 도메인 세션 동기화)
 - 리조트별 날짜별 순차 조회 (3개월)
-- bizCd: 속초=81, 부여=61, 김해=91, 제주=71
+- bizCd: 속초=81, 부여=61, 김해=91
 
 실행: python lotte_crawler.py
 """
@@ -25,6 +25,7 @@ LOTTE_ID = os.getenv("LOTTE_ID", "jbhahaha1@naver.com")
 LOTTE_PW = os.getenv("LOTTE_PW", "sjdhkdml2@")
 
 LOGIN_URL   = "https://www.lottehotel.com/global/ko/login/rewards"
+BUYING_URL  = "https://resort.lottehotel.com/buying/ko/index"
 RESERVE_URL = "https://resort.lottehotel.com/main/ko/reservation/accommodation"
 
 # 수집 대상 리조트 (bizCd → 리조트명)
@@ -70,59 +71,53 @@ def login(page):
             page.wait_for_timeout(3000)
 
     # 페이지 렌더링 대기
-    page.wait_for_timeout(6000)
+    page.wait_for_timeout(3000)
 
-    # 1. 개인정보 이용동의 체크박스 클릭
+    # 1. 쿠키 동의 '전체 동의' 팝업 버튼 처리
     try:
-        print("  개인정보 이용동의 체크박스 선택...")
-        page.evaluate("document.querySelector('#personal-info-agree-check').click()")
+        print("  쿠키 동의 '전체 동의' 확인 및 클릭...")
+        page.evaluate("""() => {
+            const btn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('전체 동의') || b.innerText.includes('Accept All'));
+            if (btn) btn.click();
+        }""")
         page.wait_for_timeout(1000)
     except Exception as e:
-        print(f"  [경고] 체크박스 선택 실패: {e}")
+        print(f"  [경고] 쿠키 동의 버튼 처리: {e}")
 
-    # 2. 개인정보 동의 '동의하고 통합 서비스 이용하기' 버튼 클릭
+    # 2. 개인정보 동의 버튼이 있는 경우 클릭
     try:
-        print("  개인정보 이용동의 버튼 클릭...")
         page.evaluate("""() => {
+            const chk = document.querySelector('#personal-info-agree-check');
+            if (chk && !chk.checked) chk.click();
             const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('동의하고') || b.textContent.includes('Agree'));
             if (btn) btn.click();
         }""")
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(1000)
     except Exception as e:
-        print(f"  [경고] 이용동의 버튼 클릭 실패: {e}")
+        pass
 
-    # 3. 쿠키 동의 '전체 동의' 버튼 클릭
-    try:
-        print("  쿠키 동의 '전체 동의' 버튼 클릭...")
-        page.evaluate("""() => {
-            const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('전체 동의') || b.textContent.includes('Accept All'));
-            if (btn) btn.click();
-        }""")
-        page.wait_for_timeout(2000)
-    except Exception as e:
-        print(f"  [경고] 쿠키 동의 버튼 클릭 실패: {e}")
-
-    # 4. L.POINT 로그인 탭 선택
+    # 3. L.POINT 로그인 탭 선택
     try:
         print("  L.POINT 로그인 탭 선택...")
         page.evaluate("""() => {
-            const tab = Array.from(document.querySelectorAll('button, a, span')).find(el => el.textContent === 'L.POINT 로그인');
+            const tab = Array.from(document.querySelectorAll('button, a, span')).find(el => el.textContent.includes('L.POINT 로그인'));
             if (tab) tab.click();
         }""")
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(1000)
     except Exception as e:
         print(f"  [경고] L.POINT 탭 선택 실패: {e}")
 
-    # 5. 계정 정보 입력
+    # 4. 계정 정보 입력
     try:
         print("  계정 정보 입력...")
         page.fill("input[name='loginId'] >> visible=true", LOTTE_ID)
         page.fill("input[name='loginPw'] >> visible=true", LOTTE_PW)
+        page.wait_for_timeout(500)
     except Exception as e:
         print(f"  [경고] 계정 입력 실패: {e}")
         raise e
 
-    # 6. 로그인 버튼 클릭
+    # 5. 로그인 버튼 클릭
     try:
         print("  로그인 버튼 클릭...")
         page.click("button.btn-cont-64", force=True)
@@ -134,29 +129,42 @@ def login(page):
     print(f"  [성공] 로그인 완료 → {page.url}")
 
 def clean_room_name(name):
-    import re
     return re.sub(r"^\[.*?\]\s*", "", name).strip()
 
 def collect_all(page):
     print("  [정보] 롯데 고속 API 잔여객실 수집기 구동...")
     
-    # 롯데리조트 메인 페이지로 진입하여 리조트 subdomain 세션 및 쿠키 활성화
-    print("  [정보] 리조트 서브도메인 세션 활성화 중...")
+    # 1. 롯데리조트 분양 사이트로 진입하여 리조트 도메인 분양회원 세션 동기화 (SSO Sync)
+    print("  [정보] 리조트 서브도메인 분양회원 세션 동기화 (SSO Sync)...")
     for attempt in range(3):
         try:
-            page.goto("https://resort.lottehotel.com/main/ko/reservation/accommodation", timeout=60000, wait_until="domcontentloaded")
+            page.goto(BUYING_URL, timeout=60000, wait_until="domcontentloaded")
             break
         except Exception as e:
             if attempt == 2:
                 raise e
-            print(f"  [경고] 리조트 메인 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            print(f"  [경고] 분양 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
+            page.wait_for_timeout(3000)
+    page.wait_for_timeout(4000)
+
+    # 2. 롯데리조트 예약 페이지로 진입
+    print("  [정보] 리조트 예약 페이지 진입...")
+    for attempt in range(3):
+        try:
+            page.goto(RESERVE_URL, timeout=60000, wait_until="domcontentloaded")
+            break
+        except Exception as e:
+            if attempt == 2:
+                raise e
+            print(f"  [경고] 예약 페이지 로드 시도 {attempt+1} 실패. 재시도 중... ({e})")
             page.wait_for_timeout(3000)
     page.wait_for_timeout(5000)
     
-    # 수집 대상 날짜 범위 설정 (오늘부터 90일)
+    # 수집 대상 날짜 범위 설정 (오늘부터 3개월)
     dates = build_date_range()
     print(f"  [정보] 수집 대상 날짜 범위: {dates[0]} ~ {dates[-1]} (총 {len(dates)}일)")
         
+    # 회원권 번호 목록 (리조트 분양 회원권)
     memberships = ["6124224400", "6124340800"]
     
     tasks = []
@@ -190,29 +198,32 @@ def collect_all(page):
     js_code = """
     async function fetchAllCalendar(tasks) {
         const results = [];
-        const chunkSize = 24; // 24개 동시 요청으로 병렬 수집 성능 대폭 개선 (WAF 차단 회피 한도 유지)
+        const chunkSize = 16; // 동시 요청 청크 단위
         for (let i = 0; i < tasks.length; i += chunkSize) {
             const chunk = tasks.slice(i, i + chunkSize);
             const promises = chunk.map(task => 
-                fetch(task.url)
-                    .then(async r => {
-                        if (r.status !== 200) {
-                            return { task, success: false, error: 'Status ' + r.status };
-                        }
-                        const data = await r.json();
-                        return { task, data, success: true };
-                    })
-                    .catch(err => ({ task, error: err.message, success: false }))
+                fetch(task.url, {
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(async r => {
+                    if (r.status !== 200) {
+                        return { task, success: false, error: 'Status ' + r.status };
+                    }
+                    const data = await r.json();
+                    return { task, data, success: true };
+                })
+                .catch(err => ({ task, error: err.message, success: false }))
             );
             const chunkResults = await Promise.all(promises);
             results.push(...chunkResults);
+            await new Promise(r => setTimeout(r, 100));
         }
         return { results };
     }
     """
-    
-    print("  [정보] 로그인 직후 잔여 세션 트래픽 정리를 위해 12초 대기 중...")
-    page.wait_for_timeout(12000)
     
     t0 = time.time()
     res_obj = page.evaluate(
@@ -221,18 +232,17 @@ def collect_all(page):
     )
     print(f"  [정보] API 잔여객실 수집 완료 (소요시간: {time.time() - t0:.2f}초)")
     
-    results = res_obj["results"]
+    results = res_obj.get("results", [])
     
     all_data = []
     collect_dt = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
     
     for r in results:
         task = r["task"]
-        if not r["success"]:
-            # API 수집 실패 건은 무시하고 진행
+        if not r.get("success"):
             continue
             
-        data = r["data"]
+        data = r.get("data", {})
         rooms = data.get("roomList", [])
         
         for rm in rooms:
@@ -240,7 +250,10 @@ def collect_all(page):
             
             # 필터: 예약 가능 ('Y')
             if avail_type == "Y":
-                avail_cnt = int(rm.get("roomCnt", 0))
+                try:
+                    avail_cnt = int(float(rm.get("roomCnt", 0) or 0))
+                except Exception:
+                    avail_cnt = 0
                 
                 # 남은 객실 수 > 0
                 if avail_cnt > 0:
@@ -248,7 +261,6 @@ def collect_all(page):
                     yoil = WEEKDAYS[dt_obj.weekday()]
                     
                     room_nm = clean_room_name(rm.get("roomNm", "객실"))
-                        
                     price = rm.get("minRateAmt", "") or rm.get("roomAvgAmt", "")
                     
                     all_data.append({
@@ -334,7 +346,6 @@ def save_txt(all_data):
 
 def cleanup_old_files():
     import glob as gb
-    import re
     now = datetime.now()
     for pattern in [os.path.join(OUTPUT_DIR, "lotte_*.xlsx"),
                     os.path.join(OUTPUT_DIR, "lotte_*.txt")]:
@@ -359,8 +370,19 @@ def main():
     print(f"  기간: {MONTHS_COUNT}개월")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 1280, "height": 900})
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        )
+        context = browser.new_context(
+            viewport={"width": 1366, "height": 768},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+        )
+        page = context.new_page()
 
         try:
             print("\n[1/4] 로그인...")
@@ -375,12 +397,12 @@ def main():
             traceback.print_exc()
             all_data = []
         finally:
-            pass
             browser.close()
 
     if all_data:
         print("\n[3/4] 파일 저장...")
         save_excel(all_data)
+        save_txt(all_data)
 
         print("\n[4/4] 오래된 파일 정리...")
         cleanup_old_files()
